@@ -495,6 +495,49 @@
       .range-row:hover { padding-left: 4px; }
     }
 
+    /* 3D Triadic — Three.js canvas */
+    .hero-3d-wrap {
+      position: absolute;
+      top: 56px;
+      right: 16px;
+      width: 240px;
+      height: 240px;
+      z-index: 10;
+    }
+    @media (min-width: 1024px) {
+      .hero-3d-wrap {
+        top: 64px;
+        right: 32px;
+        width: 320px;
+        height: 320px;
+      }
+    }
+    .hero-3d-wrap canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+      cursor: grab;
+      touch-action: none;
+    }
+    .hero-3d-wrap canvas:active { cursor: grabbing; }
+    .hero-3d-label {
+      position: absolute;
+      bottom: -6px;
+      right: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--mute);
+      opacity: 0;
+      transition: opacity 0.5s var(--ease);
+      pointer-events: none;
+    }
+    .hero-3d-wrap:hover .hero-3d-label { opacity: 0.75; }
+    @media (max-width: 767px) {
+      .hero-3d-wrap { display: none; }
+    }
+
     /* Reduced motion */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -669,16 +712,10 @@
           </div>
         </div>
 
-        <!-- Floating triadic mark -->
-        <div class="absolute top-28 right-8 hidden xl:block mark-float opacity-70" aria-hidden="true">
-          <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="0.5">
-            <line x1="12" y1="5.5" x2="5.5" y2="17.5"/>
-            <line x1="12" y1="5.5" x2="18.5" y2="17.5"/>
-            <line x1="6" y1="18" x2="18" y2="18"/>
-            <circle cx="12" cy="5.5" r="1.5" fill="#E85A2F" stroke="none"/>
-            <circle cx="5.5" cy="18" r="1.5" fill="#0A0A0A" stroke="none"/>
-            <circle cx="18.5" cy="18" r="1.5" fill="#0A0A0A" stroke="none"/>
-          </svg>
+        <!-- 3D Triadic — interactive tetrahedron -->
+        <div class="hero-3d-wrap" aria-hidden="true">
+          <canvas id="hero3d"></canvas>
+          <div class="hero-3d-label">drag · spin</div>
         </div>
       </div>
 
@@ -1289,7 +1326,7 @@
       const originalStatus = status.textContent.trim();
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (form._honey && form._honey.value) return; // spam
+        if (form._honey && form._honey.value) return;
         submitBtn.disabled = true;
         submitBtn.textContent = 'Sending…';
         status.textContent = 'Delivering your note to the studio…';
@@ -1317,6 +1354,141 @@
           status.innerHTML = 'Something broke — please email <a href="mailto:triadict.studio@gmail.com" class="ulink">triadict.studio@gmail.com</a> directly.';
         }
       });
+    }
+  </script>
+
+  <!-- 3D Triadic — Three.js -->
+  <script type="module">
+    import * as THREE from 'https://esm.sh/three@0.160.0';
+
+    const canvas = document.getElementById('hero3d');
+    if (canvas) {
+      const wrap = canvas.parentElement;
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+      camera.position.z = 4.6;
+
+      function resize() {
+        const w = wrap.clientWidth;
+        renderer.setSize(w, w, false);
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      // --- Geometry: regular tetrahedron, apex up ---
+      const apex = new THREE.Vector3(0, 1.1, 0);
+      const baseY = -0.55;
+      const baseR = 1.0;
+      const base = [
+        new THREE.Vector3(0, baseY, baseR),
+        new THREE.Vector3(baseR * Math.cos(7 * Math.PI / 6), baseY, baseR * Math.sin(7 * Math.PI / 6)),
+        new THREE.Vector3(baseR * Math.cos(11 * Math.PI / 6), baseY, baseR * Math.sin(11 * Math.PI / 6)),
+      ];
+
+      const group = new THREE.Group();
+
+      // Nodes (spheres) — coral apex, ink base
+      const nodeGeom = new THREE.SphereGeometry(0.085, 32, 32);
+      const coralMat = new THREE.MeshBasicMaterial({ color: 0xE85A2F });
+      const inkMat = new THREE.MeshBasicMaterial({ color: 0x0A0A0A });
+
+      const apexNode = new THREE.Mesh(nodeGeom, coralMat);
+      apexNode.position.copy(apex);
+      group.add(apexNode);
+
+      base.forEach(p => {
+        const n = new THREE.Mesh(nodeGeom, inkMat);
+        n.position.copy(p);
+        group.add(n);
+      });
+
+      // Subtle coral halo around apex node
+      const haloGeom = new THREE.SphereGeometry(0.16, 32, 32);
+      const haloMat = new THREE.MeshBasicMaterial({
+        color: 0xE85A2F, transparent: true, opacity: 0.15
+      });
+      const halo = new THREE.Mesh(haloGeom, haloMat);
+      halo.position.copy(apex);
+      group.add(halo);
+
+      // Edges — translucent ink hairlines
+      const edgeMat = new THREE.LineBasicMaterial({
+        color: 0x0A0A0A, transparent: true, opacity: 0.55
+      });
+      function addEdge(a, b) {
+        const g = new THREE.BufferGeometry().setFromPoints([a, b]);
+        group.add(new THREE.Line(g, edgeMat));
+      }
+      base.forEach(b => addEdge(apex, b));
+      addEdge(base[0], base[1]);
+      addEdge(base[1], base[2]);
+      addEdge(base[2], base[0]);
+
+      scene.add(group);
+
+      // Start with a slight tilt so it doesn't look flat on load
+      group.rotation.x = -0.22;
+      group.rotation.y = 0.45;
+
+      // --- Interaction: drag-to-spin, inertia decay, auto-resume ---
+      let isDragging = false;
+      let lastX = 0, lastY = 0;
+      let velX = 0, velY = 0;
+      let autoSpin = prefersReduced ? 0 : 0.0045;
+      let autoResumeTimer = null;
+
+      function onDown(e) {
+        isDragging = true;
+        autoSpin = 0;
+        if (autoResumeTimer) clearTimeout(autoResumeTimer);
+        const p = e.touches ? e.touches[0] : e;
+        lastX = p.clientX; lastY = p.clientY;
+        velX = 0; velY = 0;
+        if (e.cancelable) e.preventDefault();
+      }
+      function onMove(e) {
+        if (!isDragging) return;
+        const p = e.touches ? e.touches[0] : e;
+        const dx = p.clientX - lastX;
+        const dy = p.clientY - lastY;
+        velY = dx * 0.008;
+        velX = dy * 0.008;
+        group.rotation.y += velY;
+        group.rotation.x += velX;
+        lastX = p.clientX; lastY = p.clientY;
+      }
+      function onUp() {
+        if (!isDragging) return;
+        isDragging = false;
+        if (!prefersReduced) {
+          autoResumeTimer = setTimeout(() => { autoSpin = 0.0045; }, 2200);
+        }
+      }
+
+      canvas.addEventListener('mousedown', onDown);
+      canvas.addEventListener('touchstart', onDown, { passive: false });
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('touchmove', onMove, { passive: true });
+      window.addEventListener('mouseup', onUp);
+      window.addEventListener('touchend', onUp);
+
+      // --- Animation loop ---
+      function animate() {
+        if (!isDragging) {
+          group.rotation.y += velY * 0.94 + autoSpin;
+          group.rotation.x += velX * 0.94;
+          velX *= 0.9;
+          velY *= 0.9;
+        }
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+      }
+      animate();
     }
   </script>
 </body>
