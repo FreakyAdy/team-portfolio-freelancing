@@ -7,6 +7,11 @@
   <meta name="description" content="Editorial brochure sites for solo professionals and boutique brands. Fixed price, 2–3 weeks, no surprises." />
   <meta name="theme-color" content="#F8F6F2" />
 
+  <!-- Security: defense-in-depth fallback when no server-side headers (e.g. file://, some static hosts) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://esm.sh; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://formsubmit.co https://esm.sh; form-action 'self' https://formsubmit.co; base-uri 'self'; object-src 'none'; upgrade-insecure-requests" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta name="robots" content="index, follow" />
+
   <meta property="og:title" content="Triadict — Editorial websites for solo professionals" />
   <meta property="og:description" content="Editorial brochure sites for solo professionals and boutique brands. Fixed price, 2–3 weeks, no surprises." />
   <meta property="og:type" content="website" />
@@ -951,8 +956,8 @@
                 "Most projects don't fail on the build. They fail on the brief."
               </blockquote>
               <div class="flex items-center gap-5 mt-5 text-[13.5px]">
-                <a href="https://www.linkedin.com/in/aditya-suryavanshi-1b5608376/" class="ulink text-ink" target="_blank" rel="noopener">LinkedIn</a>
-                <a href="https://freakyady.netlify.app" class="ulink text-ink" target="_blank" rel="noopener">Portfolio ↗</a>
+                <a href="https://www.linkedin.com/in/aditya-suryavanshi-1b5608376/" class="ulink text-ink" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                <a href="https://freakyady.netlify.app" class="ulink text-ink" target="_blank" rel="noopener noreferrer">Portfolio ↗</a>
               </div>
             </div>
           </article>
@@ -975,7 +980,7 @@
                 "A site without a point of view is just a brochure with hyperlinks."
               </blockquote>
               <div class="flex items-center gap-5 mt-5 text-[13.5px]">
-                <a href="https://www.linkedin.com/in/shreeshant-bokade/" class="ulink text-ink" target="_blank" rel="noopener">LinkedIn</a>
+                <a href="https://www.linkedin.com/in/shreeshant-bokade/" class="ulink text-ink" target="_blank" rel="noopener noreferrer">LinkedIn</a>
                 <a href="mailto:shr.mail.box@gmail.com" class="ulink text-ink">Email</a>
               </div>
             </div>
@@ -999,7 +1004,7 @@
                 "Hosting isn't a feature. It's the floor everything else stands on."
               </blockquote>
               <div class="flex items-center gap-5 mt-5 text-[13.5px]">
-                <a href="https://www.linkedin.com/in/prajwal-valekar/" class="ulink text-ink" target="_blank" rel="noopener">LinkedIn</a>
+                <a href="https://www.linkedin.com/in/prajwal-valekar/" class="ulink text-ink" target="_blank" rel="noopener noreferrer">LinkedIn</a>
                 <a href="mailto:prajwalvalekar08@gmail.com" class="ulink text-ink">Email</a>
               </div>
             </div>
@@ -1134,15 +1139,15 @@
                 <ul class="space-y-2 text-[16px]">
                   <li class="flex items-baseline justify-between gap-4">
                     <span class="text-paper/70 font-mono text-[11px] tracking-[0.14em] uppercase">Aditya</span>
-                    <a href="https://wa.me/918262996104" class="ulink" target="_blank" rel="noopener">+91 82629 96104</a>
+                    <a href="https://wa.me/918262996104" class="ulink" target="_blank" rel="noopener noreferrer">+91 82629 96104</a>
                   </li>
                   <li class="flex items-baseline justify-between gap-4">
                     <span class="text-paper/70 font-mono text-[11px] tracking-[0.14em] uppercase">Shreeshant</span>
-                    <a href="https://wa.me/918530778051" class="ulink" target="_blank" rel="noopener">+91 85307 78051</a>
+                    <a href="https://wa.me/918530778051" class="ulink" target="_blank" rel="noopener noreferrer">+91 85307 78051</a>
                   </li>
                   <li class="flex items-baseline justify-between gap-4">
                     <span class="text-paper/70 font-mono text-[11px] tracking-[0.14em] uppercase">Prajwal</span>
-                    <a href="https://wa.me/919881909685" class="ulink" target="_blank" rel="noopener">+91 98819 09685</a>
+                    <a href="https://wa.me/919881909685" class="ulink" target="_blank" rel="noopener noreferrer">+91 98819 09685</a>
                   </li>
                 </ul>
               </div>
@@ -1253,8 +1258,8 @@
           <div class="font-mono text-[10px] tracking-[0.14em] uppercase text-mute mb-4">Contact</div>
           <ul class="space-y-2 text-[14.5px]">
             <li><a href="mailto:triadict.studio@gmail.com" class="ulink">triadict.studio@gmail.com</a></li>
-            <li><a href="https://wa.me/918262996104" class="ulink" target="_blank" rel="noopener">+91 82629 96104</a></li>
-            <li><a href="https://www.linkedin.com/in/aditya-suryavanshi-1b5608376/" class="ulink" target="_blank" rel="noopener">LinkedIn ↗</a></li>
+            <li><a href="https://wa.me/918262996104" class="ulink" target="_blank" rel="noopener noreferrer">+91 82629 96104</a></li>
+            <li><a href="https://www.linkedin.com/in/aditya-suryavanshi-1b5608376/" class="ulink" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a></li>
           </ul>
         </div>
       </div>
@@ -1351,7 +1356,14 @@
         } catch (err) {
           submitBtn.disabled = false;
           submitBtn.textContent = originalBtn;
-          status.innerHTML = 'Something broke — please email <a href="mailto:triadict.studio@gmail.com" class="ulink">triadict.studio@gmail.com</a> directly.';
+          // Safe DOM construction (no innerHTML — XSS-defensive even though content is hardcoded)
+          status.textContent = 'Something broke — please email ';
+          const fallbackLink = document.createElement('a');
+          fallbackLink.href = 'mailto:triadict.studio@gmail.com';
+          fallbackLink.className = 'ulink';
+          fallbackLink.textContent = 'triadict.studio@gmail.com';
+          status.appendChild(fallbackLink);
+          status.appendChild(document.createTextNode(' directly.'));
         }
       });
     }
