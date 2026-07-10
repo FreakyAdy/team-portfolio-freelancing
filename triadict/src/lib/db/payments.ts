@@ -1,13 +1,15 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import type { Payment, CreatePaymentInput } from "@/types/database"
+import type { Payment, CreatePaymentInput, Invoice } from "@/types/database"
+
+export type PaymentWithInvoice = Payment & { invoice?: Pick<Invoice, "id" | "number"> }
 
 export async function listPayments(params?: {
   invoice_id?: string
   client_org_id?: string
   status?: string
-}): Promise<Payment[]> {
+}): Promise<PaymentWithInvoice[]> {
   try {
     const supabase = await createClient()
     let query = supabase.from("payments").select(`

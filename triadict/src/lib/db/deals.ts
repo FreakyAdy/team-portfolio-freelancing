@@ -1,7 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import type { Deal, CreateDealInput, UpdateDealStageInput, DealStage } from "@/types/database"
+import type { Deal, CreateDealInput, UpdateDealInput, UpdateDealStageInput, DealStage } from "@/types/database"
 
 export async function listDeals(params?: {
   stage?: string
@@ -62,6 +62,15 @@ export async function createDeal(input: CreateDealInput): Promise<Deal | { error
       value_cents: input.value_cents,
       probability: input.probability,
       source: input.source || null,
+      company_name: input.company_name || null,
+      website: input.website || null,
+      contact_email: input.contact_email || null,
+      contact_phone: input.contact_phone || null,
+      country: input.country || null,
+      timezone: input.timezone || null,
+      industry: input.industry || null,
+      business_description: input.business_description || null,
+      current_situation: input.current_situation || null,
       services_interested: input.services_interested || [],
       strongest_problem: input.strongest_problem || null,
       personalization_angle: input.personalization_angle || null,
@@ -108,9 +117,91 @@ export async function updateDeal(id: string, updates: Partial<Deal>): Promise<{ 
       updated_at: new Date().toISOString(),
     }).eq("id", id)
     if (error) return { error: error.message }
+
+    await supabase.from("events").insert({
+      org_id: "00000000-0000-0000-0000-000000000001",
+      name: "deal_updated",
+      payload: { deal_id: id, fields: Object.keys(updates) },
+    })
+
     return {}
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Failed to update deal" }
+  }
+}
+
+export async function updateDealFields(input: UpdateDealInput): Promise<{ error?: string }> {
+  try {
+    const supabase = await createClient()
+    const { id, ...fields } = input
+    const { error } = await supabase.from("deals").update({
+      ...fields,
+      updated_at: new Date().toISOString(),
+    }).eq("id", id)
+    if (error) return { error: error.message }
+    return {}
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Failed to update deal" }
+  }
+}
+
+export async function getDealEvents(dealId: string): Promise<{ name: string; payload: Record<string, unknown>; created_at: string }[]> {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase.from("events")
+      .select("name, payload, created_at")
+      .or(`payload->>deal_id.eq.${dealId},payload->>opportunity_id.eq.${dealId}`)
+      .order("created_at", { ascending: false })
+      .limit(50)
+    if (error) return []
+    return data
+  } catch {
+    return []
+  }
+}
+
+export async function markDealLost(id: string, reason: string, notes?: string): Promise<{ error?: string }> {
+  try {
+    const supabase = await createClient()
+    const { error } = await supabase.from("deals").update({
+      stage: "lost",
+      lost_reason: reason,
+      notes: notes || null,
+      updated_at: new Date().toISOString(),
+    }).eq("id", id)
+    if (error) return { error: error.message }
+
+    await supabase.from("events").insert({
+      org_id: "00000000-0000-0000-0000-000000000001",
+      name: "deal_lost",
+      payload: { deal_id: id, reason },
+    })
+
+    return {}
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Failed to mark deal lost" }
+  }
+}
+
+export async function markDealWon(id: string): Promise<{ error?: string }> {
+  try {
+    const supabase = await createClient()
+    const { error } = await supabase.from("deals").update({
+      stage: "won",
+      probability: 100,
+      updated_at: new Date().toISOString(),
+    }).eq("id", id)
+    if (error) return { error: error.message }
+
+    await supabase.from("events").insert({
+      org_id: "00000000-0000-0000-0000-000000000001",
+      name: "deal_won",
+      payload: { deal_id: id },
+    })
+
+    return {}
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Failed to mark deal won" }
   }
 }
 

@@ -1,7 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import type { Client, CreateClientInput, Organization } from "@/types/database"
+import type { Client, ClientStatus, ClientHealth, CreateClientInput, Organization } from "@/types/database"
 
 export async function listClients(params?: {
   status?: string
@@ -66,13 +66,33 @@ export async function addClient(input: CreateClientInput): Promise<Client | { er
   }
 }
 
-export async function convertDealToClient(dealId: string, orgId: string): Promise<Client | { error: string }> {
+export async function convertDealToClient(
+  dealId: string,
+  options?: { createProject?: boolean; projectName?: string; sendOnboarding?: boolean }
+): Promise<Client | { error: string }> {
   try {
     const supabase = await createClient()
+
+    // 1. Look up the deal with its company
+    const { data: deal, error: dealErr } = await supabase
+      .from("deals")
+      .select("*, company:companies!deals_company_id_fkey(*)")
+      .eq("id", dealId)
+      .single()
+
+    if (dealErr || !deal) return { error: "Deal not found" }
+
+    const company = deal.company as { org_id: string; name: string } | null
+    if (!company?.org_id) return { error: "Deal has no associated company" }
+
+    const orgId = company.org_id
+
+    // 2. Check if already a client
     const existing = await supabase.from("clients").select("id").eq("org_id", orgId).maybeSingle()
     if (existing.data) return { error: "Company is already a client" }
 
-    const { data, error } = await supabase.from("clients").insert({
+    // 3. Create client
+    const { data: client, error: clientErr } = await supabase.from("clients").insert({
       org_id: orgId,
       client_since: new Date().toISOString().split("T")[0],
       status: "active",
@@ -81,18 +101,55 @@ export async function convertDealToClient(dealId: string, orgId: string): Promis
       communication_preference: "email",
     }).select().single()
 
-    if (error) return { error: error.message }
+    if (clientErr) return { error: clientErr.message }
 
-    await supabase.from("deals").update({ stage: "won", updated_at: new Date().toISOString() }).eq("id", dealId)
+    // 4. Mark deal won
+    await supabase.from("deals").update({
+      stage: "won",
+      probability: 100,
+      updated_at: new Date().toISOString(),
+    }).eq("id", dealId)
+
+    // 5. Optionally create project
+    if (options?.createProject) {
+      const projectName = options.projectName || `${company.name} — Website`
+      await supabase.from("projects").insert({
+        org_id: "00000000-0000-0000-0000-000000000001",
+        client_org_id: orgId,
+        deal_id: dealId,
+        name: projectName,
+        type: "website",
+        contract_value_cents: deal.value_cents || 0,
+        status: "onboarding",
+        phase: "discovery",
+      })
+    }
+
+    // 6. Log event
     await supabase.from("events").insert({
       org_id: "00000000-0000-0000-0000-000000000001",
       name: "deal_won",
-      payload: { deal_id: dealId, client_org_id: orgId },
+      payload: { deal_id: dealId, client_org_id: orgId, options },
     })
 
-    return data as Client
+    return client as Client
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Failed to convert deal" }
+  }
+}
+
+export async function updateClient(id: string, input: Partial<CreateClientInput & { status: ClientStatus; health: ClientHealth; notes: string }>): Promise<Client | { error: string }> {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase.from("clients").update({
+      ...input,
+      updated_at: new Date().toISOString(),
+    }).eq("id", id).select().single()
+
+    if (error) return { error: error.message }
+    return data as Client
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Failed to update client" }
   }
 }
 

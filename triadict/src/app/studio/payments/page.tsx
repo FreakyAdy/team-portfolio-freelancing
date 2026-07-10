@@ -1,40 +1,49 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Download, CheckCircle2, Clock, AlertCircle, DollarSign } from "lucide-react"
+import Link from "next/link"
+import { Download, CheckCircle2, Clock, AlertCircle, DollarSign, ExternalLink } from "lucide-react"
 import { listPayments, recordPayment, getPaymentSummary } from "@/lib/db/payments"
+import type { PaymentWithInvoice } from "@/lib/db/payments"
+import type { PaymentMethod, CreatePaymentInput } from "@/types/database"
+import { listInvoices } from "@/lib/db/invoices"
 import { Modal } from "@/components/ui/Modal"
 import { EmptyState } from "@/components/ui/EmptyState"
 import { LoadingState } from "@/components/ui/LoadingState"
 import { SelectField } from "@/components/ui/SelectField"
-import type { Payment, CreatePaymentInput } from "@/types/database"
-
 export default function PaymentsPage() {
-  const [payments, setPayments] = useState<Payment[]>([])
+  const [payments, setPayments] = useState<PaymentWithInvoice[]>([])
   const [summary, setSummary] = useState<{ total_cents: number; count: number; cleared_count: number; by_method: { method: string | null; total: number; count: number }[] } | null>(null)
   const [loading, setLoading] = useState(true)
   const [showRecordModal, setShowRecordModal] = useState(false)
-  const [formData, setFormData] = useState({ invoice_id: "", amount_cents: 0, method: "manual" as const, reference: "" })
+  const [invoiceOptions, setInvoiceOptions] = useState<{ value: string; label: string }[]>([])
+  const [formData, setFormData] = useState({ invoice_id: "", amount_cents: 0, method: "manual", reference: "" })
 
   const loadData = useCallback(async () => {
     setLoading(true)
-    const [pay, summ] = await Promise.all([
+    const [pay, summ, invs] = await Promise.all([
       listPayments(),
       getPaymentSummary(),
+      listInvoices(),
     ])
     setPayments(pay)
     setSummary(summ)
+    setInvoiceOptions(invs.map(i => ({ value: i.id, label: `${i.number} — ${(i.client as { name: string } | undefined)?.name || "Unknown"} ($${(i.amount_cents / 100).toLocaleString()})` })))
     setLoading(false)
   }, [])
 
   useEffect(() => { loadData() }, [loadData])
 
   const handleRecord = async () => {
-    const result = await recordPayment(formData)
+    const result = await recordPayment(formData as CreatePaymentInput)
     if ("error" in result) { alert(result.error); return }
     setShowRecordModal(false)
     setFormData({ invoice_id: "", amount_cents: 0, method: "manual", reference: "" })
     loadData()
+  }
+
+  const getInvoiceInfo = (payment: PaymentWithInvoice) => {
+    return payment.invoice?.number || payment.invoice_id.slice(0, 8)
   }
 
   if (loading) return <LoadingState />
@@ -94,7 +103,11 @@ export default function PaymentsPage() {
             <tbody>
               {payments.map((payment) => (
                 <tr key={payment.id} className="border-b border-hairline last:border-0 hover:bg-paper2/50 transition-colors">
-                  <td className="px-5 py-4 text-sm font-medium">{payment.invoice_id.slice(0, 8)}...</td>
+                  <td className="px-5 py-4">
+                    <Link href={`/studio/invoices/${payment.invoice_id}`} className="text-sm font-medium text-coral hover:text-coral/80 flex items-center gap-1">
+                      {payment.invoice?.number || payment.invoice_id.slice(0, 8)}... <ExternalLink className="w-3 h-3" />
+                    </Link>
+                  </td>
                   <td className="px-5 py-4 text-sm font-medium">${(payment.amount_cents / 100).toLocaleString()}</td>
                   <td className="px-5 py-4 text-sm text-mute">{payment.method || "—"}</td>
                   <td className="px-5 py-4">
@@ -118,6 +131,14 @@ export default function PaymentsPage() {
 
       <Modal open={showRecordModal} onClose={() => setShowRecordModal(false)} title="Record Payment">
         <div className="space-y-4">
+          <SelectField
+            label="Invoice"
+            value={formData.invoice_id}
+            onChange={(v) => setFormData({ ...formData, invoice_id: v })}
+            options={invoiceOptions}
+            placeholder="Select invoice"
+            required
+          />
           <div>
             <label className="block text-sm font-medium mb-1.5">Amount (cents) <span className="text-coral">*</span></label>
             <input
@@ -128,7 +149,7 @@ export default function PaymentsPage() {
             />
             <p className="text-xs text-mute mt-1">${(formData.amount_cents / 100).toFixed(2)}</p>
           </div>
-          <SelectField label="Method" value={formData.method} onChange={(v) => setFormData({ ...formData, method: v as "manual" })} options={[
+          <SelectField label="Method" value={formData.method} onChange={(v) => setFormData({ ...formData, method: v as PaymentMethod })} options={[
             { value: "stripe", label: "Stripe" },
             { value: "wise", label: "Wise" },
             { value: "bank", label: "Bank Transfer" },
@@ -145,7 +166,7 @@ export default function PaymentsPage() {
           </div>
           <div className="flex justify-end gap-3 pt-2">
             <button onClick={() => setShowRecordModal(false)} className="px-4 py-2 text-sm text-mute hover:text-ink transition-colors">Cancel</button>
-            <button onClick={handleRecord} disabled={!formData.amount_cents} className="px-4 py-2 text-sm bg-ink text-paper rounded-lg hover:bg-charcoal transition-colors disabled:opacity-50">
+            <button onClick={handleRecord} disabled={!formData.amount_cents || !formData.invoice_id} className="px-4 py-2 text-sm bg-ink text-paper rounded-lg hover:bg-charcoal transition-colors disabled:opacity-50">
               Record Payment
             </button>
           </div>

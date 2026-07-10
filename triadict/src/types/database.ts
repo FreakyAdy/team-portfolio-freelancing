@@ -3,6 +3,8 @@
 export type OrganizationType = 'studio' | 'client'
 export type PersonRole = 'admin' | 'engineer' | 'designer' | 'strategist' | 'client_owner' | 'client_stakeholder'
 export type DealStage = 'researching' | 'qualified' | 'outreach_ready' | 'contacted' | 'replied' | 'positive_reply' | 'discovery_scheduled' | 'discovery_complete' | 'scoping' | 'proposal_sent' | 'negotiation' | 'verbal_yes' | 'won' | 'lost' | 'nurture'
+export type LostReason = 'no_budget' | 'no_response' | 'chose_competitor' | 'timing' | 'poor_fit' | 'project_cancelled' | 'price' | 'other'
+export type DiscoveryNextStep = 'proceed_to_proposal' | 'paid_discovery' | 'more_information' | 'nurture' | 'reject'
 export type TaskStatus = 'backlog' | 'ready' | 'in_progress' | 'internal_review' | 'client_review' | 'blocked' | 'done'
 export type TaskPriority = 'critical' | 'high' | 'medium' | 'low'
 export type MeetingType = 'discovery' | 'scope' | 'proposal' | 'kickoff' | 'project_review' | 'client_feedback' | 'retainer_review' | 'internal_review' | 'retrospective'
@@ -64,6 +66,65 @@ export interface Deal {
   expected_close_date: string | null
   assigned_to: string | null
   lost_reason: string | null
+
+  // Company / Prospect info
+  company_name: string | null
+  website: string | null
+  contact_email: string | null
+  contact_phone: string | null
+  country: string | null
+  timezone: string | null
+  industry: string | null
+  lead_source: string | null
+  business_description: string | null
+  current_situation: string | null
+  problem_evidence: string | null
+  commercial_opportunity: string | null
+  trigger_event: string | null
+  known_concerns: string | null
+  recommended_service: string | null
+
+  // Qualification scoring
+  business_value: number | null
+  buying_power: number | null
+  problem_severity: number | null
+  urgency: number | null
+  fit_score: number | null
+  opportunity_score: number | null
+
+  // Discovery
+  discovery_status: 'not_started' | 'scheduled' | 'in_progress' | 'complete' | null
+  discovery_date: string | null
+  discovery_notes: string | null
+  business_objective: string | null
+  why_now: string | null
+  current_problem: string | null
+  desired_outcome: string | null
+  success_criteria: string | null
+  technical_constraints: string | null
+  seo_risks: string | null
+  client_timeline: string | null
+  commercial_expectations: string | null
+  unknowns: string | null
+  discovery_decision_brief: string | null
+  discovery_next_step: DiscoveryNextStep | null
+
+  // Scoping (internal only)
+  proposed_deliverables: string | null
+  in_scope: string | null
+  out_of_scope: string | null
+  assumptions: string | null
+  client_dependencies: string | null
+  technical_unknowns: string | null
+  technical_risks: string | null
+  seo_migration_risks: string | null
+  estimated_complexity: 'low' | 'medium' | 'high' | null
+  estimated_internal_effort_hours: number | null
+  contingency_percentage: number | null
+  minimum_acceptable_price_cents: number | null
+  recommended_price_cents: number | null
+  payment_structure: string | null
+
   created_at: string
   updated_at: string
   assignee?: Person
@@ -515,9 +576,19 @@ export interface ProjectHealthItem {
 export interface CreateDealInput {
   name: string
   lead_id?: string
+  company_id?: string
   value_cents: number
   probability: number
   source?: string
+  company_name?: string
+  website?: string
+  contact_email?: string
+  contact_phone?: string
+  country?: string
+  timezone?: string
+  industry?: string
+  business_description?: string
+  current_situation?: string
   services_interested?: string[]
   strongest_problem?: string
   personalization_angle?: string
@@ -530,6 +601,76 @@ export interface CreateDealInput {
 export interface UpdateDealStageInput {
   id: string
   stage: DealStage
+}
+
+export interface UpdateDealInput {
+  id: string
+  name?: string
+  value_cents?: number
+  currency?: string
+  probability?: number
+  source?: string
+  company_name?: string
+  website?: string
+  contact_email?: string
+  contact_phone?: string
+  country?: string
+  timezone?: string
+  industry?: string
+  lead_source?: string
+  business_description?: string
+  current_situation?: string
+  strongest_problem?: string
+  personalization_angle?: string
+  problem_evidence?: string
+  commercial_opportunity?: string
+  trigger_event?: string
+  known_concerns?: string
+  recommended_service?: string
+  notes?: string
+  next_action?: string
+  next_action_at?: string
+  last_contact_at?: string
+  expected_close_date?: string
+  assigned_to?: string
+  primary_contact_id?: string
+  // Qualification
+  business_value?: number
+  buying_power?: number
+  problem_severity?: number
+  urgency?: number
+  fit_score?: number
+  // Discovery
+  discovery_status?: Deal['discovery_status']
+  discovery_date?: string
+  discovery_notes?: string
+  business_objective?: string
+  why_now?: string
+  current_problem?: string
+  desired_outcome?: string
+  success_criteria?: string
+  technical_constraints?: string
+  seo_risks?: string
+  client_timeline?: string
+  commercial_expectations?: string
+  unknowns?: string
+  discovery_decision_brief?: string
+  discovery_next_step?: Deal['discovery_next_step']
+  // Scoping
+  proposed_deliverables?: string
+  in_scope?: string
+  out_of_scope?: string
+  assumptions?: string
+  client_dependencies?: string
+  technical_unknowns?: string
+  technical_risks?: string
+  seo_migration_risks?: string
+  estimated_complexity?: Deal['estimated_complexity']
+  estimated_internal_effort_hours?: number
+  contingency_percentage?: number
+  minimum_acceptable_price_cents?: number
+  recommended_price_cents?: number
+  payment_structure?: string
 }
 
 export interface CreateProjectInput {

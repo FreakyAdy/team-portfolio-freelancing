@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Plus, Search, MoreHorizontal, FileText } from "lucide-react"
+import Link from "next/link"
+import { Plus, Search, MoreHorizontal, FileText, ArrowRight } from "lucide-react"
 import { listInvoices, createInvoice, getInvoiceSummary } from "@/lib/db/invoices"
 import { listCompanies } from "@/lib/db/companies"
 import { Modal } from "@/components/ui/Modal"
@@ -111,31 +112,29 @@ export default function InvoicesPage() {
             <thead>
               <tr className="border-b border-hairline">
                 <th className="text-left text-xs font-mono uppercase tracking-wider text-mute px-5 py-3">Invoice</th>
-                <th className="text-left text-xs font-mono uppercase tracking-wider text-mute px-5 py-3">Client</th>
-                <th className="text-left text-xs font-mono uppercase tracking-wider text-mute px-5 py-3">Amount</th>
-                <th className="text-left text-xs font-mono uppercase tracking-wider text-mute px-5 py-3">Status</th>
-                <th className="text-left text-xs font-mono uppercase tracking-wider text-mute px-5 py-3">Type</th>
-                <th className="text-left text-xs font-mono uppercase tracking-wider text-mute px-5 py-3">Date</th>
               </tr>
             </thead>
             <tbody>
               {invoices.map((inv) => (
-                <tr key={inv.id} className="border-b border-hairline last:border-0 hover:bg-paper2/50 transition-colors">
-                  <td className="px-5 py-4 text-sm font-medium">{inv.number}</td>
-                  <td className="px-5 py-4 text-sm">{inv.client?.name || "—"}</td>
-                  <td className="px-5 py-4 text-sm font-medium">${(inv.amount_cents / 100).toLocaleString()}</td>
-                  <td className="px-5 py-4">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusColors[inv.status] || "bg-mute/10 text-mute"}`}>
-                      {inv.status}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${typeColors[inv.type] || "bg-mute/10 text-mute"}`}>
-                      {inv.type.replace('_', ' ')}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4 text-sm text-mute">
-                    {inv.created_at ? new Date(inv.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : "—"}
+                <tr key={inv.id} className="border-b border-hairline last:border-0 hover:bg-paper2/50 transition-colors cursor-pointer">
+                  <td className="px-5 py-4" colSpan={6}>
+                    <Link href={`/studio/invoices/${inv.id}`} className="flex items-center justify-between group">
+                      <div className="flex items-center gap-6 flex-1">
+                        <span className="text-sm font-medium w-24 group-hover:text-coral transition-colors">{inv.number}</span>
+                        <span className="text-sm text-mute w-32">{inv.client?.name || "—"}</span>
+                        <span className="text-sm font-medium w-24">${(inv.amount_cents / 100).toLocaleString()}</span>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium w-20 ${statusColors[inv.status] || "bg-mute/10 text-mute"}`}>
+                          {inv.status}
+                        </span>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium w-24 ${typeColors[inv.type] || "bg-mute/10 text-mute"}`}>
+                          {inv.type.replace('_', ' ')}
+                        </span>
+                        <span className="text-sm text-mute">
+                          {inv.created_at ? new Date(inv.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : "—"}
+                        </span>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-mute opacity-0 group-hover:opacity-100 transition-all flex-shrink-0" />
+                    </Link>
                   </td>
                 </tr>
               ))}

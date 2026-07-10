@@ -62,6 +62,21 @@ export async function createInvoice(input: CreateInvoiceInput): Promise<Invoice 
   }
 }
 
+export async function getInvoice(id: string): Promise<(Invoice & { client?: { name: string }; project?: unknown }) | null> {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase.from("invoices").select(`
+      *,
+      client:organizations!invoices_client_org_id_fkey (name),
+      project:projects (*)
+    `).eq("id", id).single()
+    if (error) return null
+    return data as unknown as Invoice & { client?: { name: string }; project?: unknown }
+  } catch {
+    return null
+  }
+}
+
 export async function updateInvoiceStatus(id: string, status: string): Promise<{ error?: string }> {
   try {
     const supabase = await createClient()

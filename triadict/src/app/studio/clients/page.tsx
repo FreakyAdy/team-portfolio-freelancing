@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Search, Plus, MoreHorizontal, Building2 } from "lucide-react"
+import Link from "next/link"
+import { Search, Plus, MoreHorizontal, Building2, ArrowRight } from "lucide-react"
 import { listClients, addClient } from "@/lib/db/clients"
 import { createCompany } from "@/lib/db/companies"
 import { createContact } from "@/lib/db/contacts"
@@ -86,48 +87,50 @@ export default function ClientsPage() {
             <thead>
               <tr className="border-b border-hairline">
                 <th className="text-left text-xs font-mono uppercase tracking-wider text-mute px-5 py-3">Client</th>
-                <th className="text-left text-xs font-mono uppercase tracking-wider text-mute px-5 py-3">Status</th>
-                <th className="text-left text-xs font-mono uppercase tracking-wider text-mute px-5 py-3">Health</th>
-                <th className="text-left text-xs font-mono uppercase tracking-wider text-mute px-5 py-3">Since</th>
               </tr>
             </thead>
             <tbody>
               {clients.map((client) => (
-                <tr key={client.id as string} className="border-b border-hairline last:border-0 hover:bg-paper2/50 transition-colors">
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-coral/10 flex items-center justify-center">
-                        <span className="text-coral text-sm font-medium">
-                          {((client.organization as Organization)?.name || "?").charAt(0)}
-                        </span>
+                <tr key={client.id as string} className="border-b border-hairline last:border-0 hover:bg-paper2/50 transition-colors cursor-pointer">
+                  <td className="px-5 py-4" colSpan={1}>
+                    <Link href={`/studio/clients/${client.id}`} className="flex items-center justify-between group">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-coral/10 flex items-center justify-center">
+                          <span className="text-coral text-sm font-medium">
+                            {((client.organization as Organization)?.name || "?").charAt(0)}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium group-hover:text-coral transition-colors">{(client.organization as Organization)?.name || "—"}</span>
+                          <div className="flex items-center gap-3 mt-0.5">
+                            <span className={`inline-flex items-center gap-1 text-xs ${
+                              client.status === "active" ? "text-forest" : 
+                              client.status === "onboarding" ? "text-inkblue" :
+                              client.status === "at_risk" ? "text-coral" : "text-mute"
+                            }`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${
+                                client.status === "active" ? "bg-forest" :
+                                client.status === "onboarding" ? "bg-inkblue" :
+                                client.status === "at_risk" ? "bg-coral" : "bg-mute"
+                              }`} />
+                              {client.status as string}
+                            </span>
+                            <span className={`text-xs ${
+                              client.health === "green" ? "text-forest" :
+                              client.health === "yellow" ? "text-gold" : "text-coral"
+                            }`}>
+                              {client.health as string}
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                      <span className="text-sm font-medium">{(client.organization as Organization)?.name || "—"}</span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className={`inline-flex items-center gap-1.5 text-xs ${
-                      client.status === "active" ? "text-forest" : 
-                      client.status === "onboarding" ? "text-inkblue" :
-                      client.status === "at_risk" ? "text-coral" : "text-mute"
-                    }`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${
-                        client.status === "active" ? "bg-forest" :
-                        client.status === "onboarding" ? "bg-inkblue" :
-                        client.status === "at_risk" ? "bg-coral" : "bg-mute"
-                      }`} />
-                      {client.status as string}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className={`text-xs ${
-                      client.health === "green" ? "text-forest" :
-                      client.health === "yellow" ? "text-gold" : "text-coral"
-                    }`}>
-                      {client.health as string}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4 text-sm text-mute">
-                    {client.client_since ? new Date(client.client_since as string).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "—"}
+                      <div className="flex items-center gap-4">
+                        <span className="text-xs text-mute">
+                          {client.client_since ? new Date(client.client_since as string).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "—"}
+                        </span>
+                        <ArrowRight className="w-4 h-4 text-mute opacity-0 group-hover:opacity-100 transition-all" />
+                      </div>
+                    </Link>
                   </td>
                 </tr>
               ))}
