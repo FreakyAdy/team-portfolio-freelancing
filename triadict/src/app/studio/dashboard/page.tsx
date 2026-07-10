@@ -35,6 +35,7 @@ export default function StudioDashboard() {
   const [activeProjects, setActiveProjects] = useState<{ id: string; name: string; phase: string; progress: number }[]>([])
   const [upcomingTasks, setUpcomingTasks] = useState<{ id: string; title: string; due_date: string | null; priority: string }[]>([])
   const [recentActivity, setRecentActivity] = useState<{ name: string; created_at: string }[]>([])
+  const [attentionDeals, setAttentionDeals] = useState<{ id: string; name: string; stage: string; next_action: string | null; next_action_at: string | null }[]>([])
   const [loading, setLoading] = useState(true)
 
   const loadData = useCallback(async () => {
@@ -94,6 +95,13 @@ export default function StudioDashboard() {
         phase: p.phase,
         progress: 0,
       })))
+
+      const now = new Date()
+      const overdue = deals.filter(d =>
+        d.next_action_at && new Date(d.next_action_at) < now &&
+        !["won", "lost", "nurture"].includes(d.stage)
+      ).slice(0, 5)
+      setAttentionDeals(overdue)
 
       const allTasks = await listTasks({ status: "all" })
       const sorted = allTasks
@@ -157,6 +165,27 @@ export default function StudioDashboard() {
 
   return (
     <div className="space-y-8">
+      {attentionDeals.length > 0 && (
+        <div className="bg-coral/5 border border-coral/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertCircle className="w-4 h-4 text-coral" />
+            <h2 className="font-sans font-medium text-sm text-coral">Attention Required</h2>
+          </div>
+          <div className="space-y-2">
+            {attentionDeals.map(deal => (
+              <Link key={deal.id} href={`/studio/deals/${deal.id}`}
+                className="flex items-center gap-3 p-2 rounded-lg hover:bg-coral/5 transition-colors group">
+                <span className="text-sm text-ink group-hover:text-coral transition-colors">{deal.name}</span>
+                {deal.next_action && <span className="text-xs text-mute">{deal.next_action}</span>}
+                <span className="text-xs text-coral ml-auto">
+                  Overdue: {new Date(deal.next_action_at!).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="flex items-end justify-between">
         <div>
           <p className="text-mute text-sm font-sans mb-1">{getGreeting()}</p>

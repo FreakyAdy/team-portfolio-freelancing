@@ -84,6 +84,14 @@ export interface Deal {
   known_concerns: string | null
   recommended_service: string | null
 
+  // Relationship / Origin
+  source_detail: string | null
+  how_it_started: string | null
+  relationship_context: string | null
+
+  // Client assessment
+  client_technical_sophistication: string | null
+
   // Qualification scoring
   business_value: number | null
   buying_power: number | null
@@ -123,6 +131,9 @@ export interface Deal {
   contingency_percentage: number | null
   minimum_acceptable_price_cents: number | null
   recommended_price_cents: number | null
+  internal_estimate_cents: number | null
+  proposed_price_cents: number | null
+  agreed_price_cents: number | null
   payment_structure: string | null
 
   created_at: string
@@ -130,6 +141,22 @@ export interface Deal {
   assignee?: Person
   lead?: Lead
   primary_contact?: Person
+  workstreams?: Workstream[]
+}
+
+export interface Workstream {
+  id: string
+  deal_id: string
+  label: string
+  description: string | null
+  creative_freedom: string | null
+  seo_sensitivity: string | null
+  scope_notes: string | null
+  status: 'needs_discovery' | 'discovering' | 'scoped' | 'ready_to_price' | 'priced' | 'agreed'
+  estimated_price_cents: number | null
+  sort_order: number
+  created_at: string
+  updated_at: string
 }
 
 export interface Task {
@@ -580,6 +607,9 @@ export interface CreateDealInput {
   value_cents: number
   probability: number
   source?: string
+  source_detail?: string
+  how_it_started?: string
+  relationship_context?: string
   company_name?: string
   website?: string
   contact_email?: string
@@ -610,6 +640,10 @@ export interface UpdateDealInput {
   currency?: string
   probability?: number
   source?: string
+  source_detail?: string
+  how_it_started?: string
+  relationship_context?: string
+  client_technical_sophistication?: string
   company_name?: string
   website?: string
   contact_email?: string
@@ -670,6 +704,9 @@ export interface UpdateDealInput {
   contingency_percentage?: number
   minimum_acceptable_price_cents?: number
   recommended_price_cents?: number
+  internal_estimate_cents?: number
+  proposed_price_cents?: number
+  agreed_price_cents?: number
   payment_structure?: string
 }
 

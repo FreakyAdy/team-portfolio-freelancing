@@ -7,18 +7,20 @@ import {
   ArrowLeft, Building2, Target, MessageSquare, Search, BookOpen,
   Activity, MoreHorizontal, Calendar, DollarSign, Clock, AlertCircle,
   CheckCircle2, XCircle, User, TrendingUp, Edit3, Save, X,
-  Plus, ChevronDown
+  Plus, ChevronDown, FileText, Layers, HelpCircle, Lightbulb, Eye
 } from "lucide-react"
-import { getDeal, updateDeal, updateDealStage, getDealEvents, markDealWon, markDealLost, deleteDeal } from "@/lib/db/deals"
+import { getDeal, updateDeal, updateDealStage, getDealEvents, markDealWon, markDealLost, deleteDeal, listWorkstreams, createWorkstream, updateWorkstream, deleteWorkstream } from "@/lib/db/deals"
 import { listTeamMembers } from "@/lib/db/contacts"
 import { Modal } from "@/components/ui/Modal"
 import { LoadingState } from "@/components/ui/LoadingState"
 import { TextField } from "@/components/ui/TextField"
 import { SelectField } from "@/components/ui/SelectField"
-import type { Deal, UpdateDealInput } from "@/types/database"
+import type { Deal, UpdateDealInput, Workstream } from "@/types/database"
 
 const tabs = [
   { id: "overview", label: "Overview", icon: Building2 },
+  { id: "research", label: "Research", icon: Lightbulb },
+  { id: "workstreams", label: "Workstreams", icon: Layers },
   { id: "opportunity", label: "Problem & Opportunity", icon: Target },
   { id: "communication", label: "Communication", icon: MessageSquare },
   { id: "discovery", label: "Discovery", icon: Search },
@@ -60,6 +62,7 @@ export default function DealDetailPage() {
   const dealId = params.id as string
 
   const [deal, setDeal] = useState<Deal | null>(null)
+  const [workstreams, setWorkstreams] = useState<Workstream[]>([])
   const [events, setEvents] = useState<{ name: string; payload: Record<string, unknown>; created_at: string }[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("overview")
@@ -72,15 +75,20 @@ export default function DealDetailPage() {
   const [lostReason, setLostReason] = useState("no_budget")
   const [lostNotes, setLostNotes] = useState("")
   const [teamOptions, setTeamOptions] = useState<{ value: string; label: string }[]>([])
+  const [showWorkstreamModal, setShowWorkstreamModal] = useState(false)
+  const [editWorkstream, setEditWorkstream] = useState<Workstream | null>(null)
+  const [wsForm, setWsForm] = useState({ label: "", description: "", creative_freedom: "", seo_sensitivity: "" })
 
   const loadData = useCallback(async () => {
     setLoading(true)
-    const [d, ev, team] = await Promise.all([
+    const [d, ws, ev, team] = await Promise.all([
       getDeal(dealId),
+      listWorkstreams(dealId),
       getDealEvents(dealId),
       listTeamMembers(),
     ])
     setDeal(d)
+    setWorkstreams(ws)
     setEvents(ev)
     setTeamOptions(team.map(t => ({ value: t.id, label: t.full_name || t.email })))
     setLoading(false)
@@ -109,6 +117,30 @@ export default function DealDetailPage() {
   const handleDelete = async () => {
     await deleteDeal(dealId)
     router.push("/studio/deals")
+  }
+
+  const handleCreateWorkstream = async () => {
+    if (!wsForm.label) return
+    const result = await createWorkstream({ deal_id: dealId, ...wsForm })
+    if ("error" in result) { alert(result.error); return }
+    setShowWorkstreamModal(false)
+    setWsForm({ label: "", description: "", creative_freedom: "", seo_sensitivity: "" })
+    loadData()
+  }
+
+  const handleUpdateWorkstream = async () => {
+    if (!editWorkstream || !wsForm.label) return
+    const result = await updateWorkstream({ id: editWorkstream.id, ...wsForm })
+    if (result.error) { alert(result.error); return }
+    setEditWorkstream(null)
+    setWsForm({ label: "", description: "", creative_freedom: "", seo_sensitivity: "" })
+    loadData()
+  }
+
+  const handleDeleteWorkstream = async (id: string) => {
+    const result = await deleteWorkstream(id)
+    if (result.error) { alert(result.error); return }
+    loadData()
   }
 
   const handleSaveField = async (field: string, value: unknown) => {
@@ -392,6 +424,95 @@ export default function DealDetailPage() {
         </div>
       )}
 
+      {activeTab === "research" && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-paper border border-hairline rounded-xl p-6">
+              <h2 className="font-display text-lg tracking-tight text-ink mb-4">How It Started</h2>
+              <TextAreaField label="Origin story" value={deal.how_it_started} field="how_it_started" onSave={handleSaveField} />
+              <div className="mt-4 space-y-4">
+                <InfoRow label="Source" value={deal.source || "—"} />
+                <InfoRow label="Source Detail" value={deal.source_detail || "—"} />
+                <InfoRow label="Lead Source" value={deal.lead_source || "—"} />
+              </div>
+            </div>
+            <div className="bg-paper border border-hairline rounded-xl p-6">
+              <h2 className="font-display text-lg tracking-tight text-ink mb-4">Relationship Context</h2>
+              <TextAreaField label="Relationship history" value={deal.relationship_context} field="relationship_context" onSave={handleSaveField} />
+              <div className="mt-4">
+                <InfoRow label="Client Technical Sophistication" value={deal.client_technical_sophistication || "—"} />
+              </div>
+            </div>
+          </div>
+          <div className="bg-paper border border-hairline rounded-xl p-6">
+            <h2 className="font-display text-lg tracking-tight text-ink mb-4">Research Notes</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TextAreaField label="Personalization angle" value={deal.personalization_angle} field="personalization_angle" onSave={handleSaveField} />
+              <TextAreaField label="Business context" value={deal.business_description} field="business_description" onSave={handleSaveField} />
+              <TextAreaField label="Current situation" value={deal.current_situation} field="current_situation" onSave={handleSaveField} />
+              <TextAreaField label="Known concerns" value={deal.known_concerns} field="known_concerns" onSave={handleSaveField} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "workstreams" && (
+        <div className="space-y-6">
+          <div className="bg-paper border border-hairline rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-display text-lg tracking-tight text-ink">Workstreams</h2>
+              <button onClick={() => { setWsForm({ label: "", description: "", creative_freedom: "", seo_sensitivity: "" }); setShowWorkstreamModal(true) }}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm bg-ink text-paper rounded-lg hover:bg-ink/90 transition-colors">
+                <Plus className="w-3.5 h-3.5" /> Add Workstream
+              </button>
+            </div>
+            {workstreams.length === 0 ? (
+              <p className="text-sm text-mute text-center py-8">No workstreams defined yet. Add potential project scopes within this deal.</p>
+            ) : (
+              <div className="space-y-4">
+                {workstreams.map((ws) => (
+                  <div key={ws.id} className="border border-hairline rounded-xl p-5 hover:border-coral/30 transition-colors">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-coral/10 flex items-center justify-center">
+                          <Layers className="w-4 h-4 text-coral" />
+                        </div>
+                        <div>
+                          <h3 className="font-medium text-ink">{ws.label}</h3>
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                            ws.status === "agreed" ? "bg-forest/10 text-forest" :
+                            ws.status === "priced" || ws.status === "ready_to_price" ? "bg-coral/10 text-coral" :
+                            ws.status === "scoped" ? "bg-inkblue/10 text-inkblue" :
+                            ws.status === "discovering" ? "bg-gold/10 text-gold" :
+                            "bg-mute/10 text-mute"
+                          }`}>
+                            {ws.status.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => { setEditWorkstream(ws); setWsForm({ label: ws.label, description: ws.description || "", creative_freedom: ws.creative_freedom || "", seo_sensitivity: ws.seo_sensitivity || "" }) }} className="p-1.5 text-mute hover:text-ink hover:bg-paper2 rounded-lg transition-colors">
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button onClick={() => handleDeleteWorkstream(ws.id)} className="p-1.5 text-mute hover:text-coral hover:bg-coral/5 rounded-lg transition-colors">
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                    {ws.description && <p className="text-sm text-mute mb-3">{ws.description}</p>}
+                    <div className="flex items-center gap-4 text-xs text-mute">
+                      {ws.creative_freedom && <span>Creative freedom: <strong className="text-ink">{ws.creative_freedom}</strong></span>}
+                      {ws.seo_sensitivity && <span>SEO sensitivity: <strong className="text-ink">{ws.seo_sensitivity}</strong></span>}
+                      {ws.estimated_price_cents != null && <span>Est: <strong className="text-ink">${(ws.estimated_price_cents / 100).toLocaleString()}</strong></span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {activeTab === "opportunity" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-paper border border-hairline rounded-xl p-6">
@@ -563,15 +684,43 @@ export default function DealDetailPage() {
               </div>
               <div className="space-y-4">
                 <div className="flex items-center justify-between py-2 border-b border-hairline">
-                  <span className="text-sm text-mute">Min acceptable price</span>
+                  <span className="text-sm text-mute flex items-center gap-1">
+                    Internal estimate <span className="text-[10px] font-mono text-coral">(not quoted)</span>
+                  </span>
+                  <span className="text-sm font-medium text-ink">
+                    {deal.internal_estimate_cents != null ? `$${(deal.internal_estimate_cents / 100).toLocaleString()}` : "—"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-2 border-b border-hairline">
+                  <span className="text-sm text-mute flex items-center gap-1">
+                    Min acceptable price <span className="text-[10px] font-mono text-mute">(floor)</span>
+                  </span>
                   <span className="text-sm font-medium text-ink">
                     {deal.minimum_acceptable_price_cents != null ? `$${(deal.minimum_acceptable_price_cents / 100).toLocaleString()}` : "—"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-2 border-b border-hairline">
-                  <span className="text-sm text-mute">Recommended price</span>
+                  <span className="text-sm text-mute flex items-center gap-1">
+                    Recommended price <span className="text-[10px] font-mono text-mute">(target)</span>
+                  </span>
                   <span className="text-sm font-medium text-ink">
                     {deal.recommended_price_cents != null ? `$${(deal.recommended_price_cents / 100).toLocaleString()}` : "—"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-2 border-b border-hairline">
+                  <span className="text-sm text-mute flex items-center gap-1">
+                    Proposed price <span className="text-[10px] font-mono text-mute">(to client)</span>
+                  </span>
+                  <span className="text-sm font-medium text-ink">
+                    {deal.proposed_price_cents != null ? `$${(deal.proposed_price_cents / 100).toLocaleString()}` : "—"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-2 border-b border-hairline">
+                  <span className="text-sm text-mute flex items-center gap-1">
+                    Agreed price <span className="text-[10px] font-mono text-mute">(signed)</span>
+                  </span>
+                  <span className="text-sm font-medium text-ink">
+                    {deal.agreed_price_cents != null ? `$${(deal.agreed_price_cents / 100).toLocaleString()}` : "—"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-2">
@@ -608,6 +757,22 @@ export default function DealDetailPage() {
           )}
         </div>
       )}
+
+      {/* Workstream Modal */}
+      <Modal open={showWorkstreamModal || !!editWorkstream} onClose={() => { setShowWorkstreamModal(false); setEditWorkstream(null) }} title={editWorkstream ? "Edit Workstream" : "Add Workstream"}>
+        <div className="space-y-4">
+          <TextField label="Label" value={wsForm.label} onChange={(v) => setWsForm({ ...wsForm, label: v })} required placeholder="e.g. Site A — Higher Creative Freedom" />
+          <TextField label="Description" value={wsForm.description} onChange={(v) => setWsForm({ ...wsForm, description: v })} multiline placeholder="Brief description of this workstream's scope" />
+          <TextField label="Creative Freedom" value={wsForm.creative_freedom} onChange={(v) => setWsForm({ ...wsForm, creative_freedom: v })} placeholder="Relatively High / More Limited" />
+          <TextField label="SEO Sensitivity" value={wsForm.seo_sensitivity} onChange={(v) => setWsForm({ ...wsForm, seo_sensitivity: v })} placeholder="High / To Assess / Low" />
+          <div className="flex justify-end gap-3 pt-2">
+            <button onClick={() => { setShowWorkstreamModal(false); setEditWorkstream(null) }} className="px-4 py-2 text-sm text-mute hover:text-ink transition-colors">Cancel</button>
+            <button onClick={editWorkstream ? handleUpdateWorkstream : handleCreateWorkstream} disabled={!wsForm.label} className="px-4 py-2 bg-ink text-paper text-sm rounded-lg hover:bg-ink/90 transition-colors disabled:opacity-50">
+              {editWorkstream ? "Save" : "Add"}
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Lost Modal */}
       <Modal open={showLostModal} onClose={() => setShowLostModal(false)} title="Mark Deal Lost">

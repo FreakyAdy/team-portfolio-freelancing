@@ -93,7 +93,7 @@ export default function DealsPage() {
 
   const [formData, setFormData] = useState<CreateDealInput>({
     name: "", value_cents: 0, probability: 50,
-    source: "", assigned_to: "", notes: "",
+    source: "", source_detail: "", how_it_started: "", assigned_to: "", notes: "",
   })
 
   const loadData = useCallback(async () => {
@@ -127,7 +127,7 @@ export default function DealsPage() {
       return
     }
     setShowCreateModal(false)
-    setFormData({ name: "", value_cents: 0, probability: 50 })
+    setFormData({ name: "", value_cents: 0, probability: 50, source: "", source_detail: "", how_it_started: "", assigned_to: "", notes: "" })
     loadData()
   }
 
@@ -332,7 +332,10 @@ export default function DealsPage() {
                             )}
                           </div>
                         </div>
-                        <p className="text-xs text-mute mb-3">{deal.notes?.slice(0, 60) || "—"}</p>
+                        <p className="text-xs text-mute mb-1 line-clamp-1">{deal.notes?.slice(0, 60) || "—"}</p>
+                        {deal.source_detail && (
+                          <p className="text-[10px] text-mute/60 mb-3 truncate">{deal.source_detail}</p>
+                        )}
                         <div className="flex items-center justify-between mb-3">
                           <span className="text-sm font-sans font-medium text-ink">
                             ${(deal.value_cents / 100).toLocaleString()}
@@ -347,6 +350,9 @@ export default function DealsPage() {
                               <Calendar className="w-3 h-3" />
                               {new Date(deal.expected_close_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                             </div>
+                          )}
+                          {deal.workstreams && deal.workstreams.length > 0 && (
+                            <span className="text-[10px] text-mute/60">{deal.workstreams.length} ws</span>
                           )}
                         </div>
                         {deal.assignee && (
@@ -540,6 +546,8 @@ export default function DealsPage() {
             />
           </div>
           <TextField label="Source" value={formData.source || ""} onChange={(v) => setFormData({ ...formData, source: v })} placeholder="e.g. Cold email, Referral, Upwork" />
+          <TextField label="Source Detail" value={formData.source_detail || ""} onChange={(v) => setFormData({ ...formData, source_detail: v })} placeholder="e.g. Deep Research + Custom Demo" />
+          <TextField label="How It Started" value={formData.how_it_started || ""} onChange={(v) => setFormData({ ...formData, how_it_started: v })} multiline placeholder="Brief story of how this opportunity began" />
           <SelectField
             label="Assigned To"
             value={formData.assigned_to || ""}

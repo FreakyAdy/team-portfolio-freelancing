@@ -1,7 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import type { Deal, CreateDealInput, UpdateDealInput, UpdateDealStageInput, DealStage } from "@/types/database"
+import type { Deal, CreateDealInput, UpdateDealInput, UpdateDealStageInput, DealStage, Workstream } from "@/types/database"
 
 export async function listDeals(params?: {
   stage?: string
@@ -13,7 +13,8 @@ export async function listDeals(params?: {
     let query = supabase.from("deals").select(`
       *,
       assignee:people!deals_assigned_to_fkey (*),
-      lead:leads (*)
+      lead:leads (*),
+      workstreams:workstreams (*)
     `).order("created_at", { ascending: false })
 
     if (params?.stage && params.stage !== "all") {
@@ -40,7 +41,8 @@ export async function getDeal(id: string): Promise<Deal | null> {
     const { data, error } = await supabase.from("deals").select(`
       *,
       assignee:people!deals_assigned_to_fkey (*),
-      lead:leads (*)
+      lead:leads (*),
+      workstreams:workstreams (*)
     `).eq("id", id).single()
     if (error) return null
     return data as unknown as Deal
@@ -62,6 +64,9 @@ export async function createDeal(input: CreateDealInput): Promise<Deal | { error
       value_cents: input.value_cents,
       probability: input.probability,
       source: input.source || null,
+      source_detail: input.source_detail || null,
+      how_it_started: input.how_it_started || null,
+      relationship_context: input.relationship_context || null,
       company_name: input.company_name || null,
       website: input.website || null,
       contact_email: input.contact_email || null,
@@ -247,5 +252,85 @@ export async function getPipelineSummary() {
     }
   } catch {
     return { total: 0, totalValue: 0, weighted: 0, avg: 0, winRate: 0, wonCount: 0, byStage: [] }
+  }
+}
+
+export async function listWorkstreams(dealId: string): Promise<Workstream[]> {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase.from("workstreams")
+      .select("*")
+      .eq("deal_id", dealId)
+      .order("sort_order", { ascending: true })
+    if (error) return []
+    return data as Workstream[]
+  } catch {
+    return []
+  }
+}
+
+export async function createWorkstream(input: {
+  deal_id: string
+  label: string
+  description?: string
+  creative_freedom?: string
+  seo_sensitivity?: string
+  estimated_price_cents?: number
+}): Promise<Workstream | { error: string }> {
+  try {
+    const supabase = await createClient()
+    const { count } = await supabase.from("workstreams")
+      .select("id", { count: "exact", head: true })
+      .eq("deal_id", input.deal_id)
+
+    const { data, error } = await supabase.from("workstreams").insert({
+      deal_id: input.deal_id,
+      label: input.label,
+      description: input.description || null,
+      creative_freedom: input.creative_freedom || null,
+      seo_sensitivity: input.seo_sensitivity || null,
+      estimated_price_cents: input.estimated_price_cents || null,
+      sort_order: count || 0,
+    }).select().single()
+
+    if (error) return { error: error.message }
+    return data as Workstream
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Failed to create workstream" }
+  }
+}
+
+export async function updateWorkstream(input: {
+  id: string
+  label?: string
+  description?: string
+  creative_freedom?: string
+  seo_sensitivity?: string
+  scope_notes?: string
+  status?: Workstream['status']
+  estimated_price_cents?: number
+}): Promise<{ error?: string }> {
+  try {
+    const supabase = await createClient()
+    const { id, ...updates } = input
+    const { error } = await supabase.from("workstreams").update({
+      ...updates,
+      updated_at: new Date().toISOString(),
+    }).eq("id", id)
+    if (error) return { error: error.message }
+    return {}
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Failed to update workstream" }
+  }
+}
+
+export async function deleteWorkstream(id: string): Promise<{ error?: string }> {
+  try {
+    const supabase = await createClient()
+    const { error } = await supabase.from("workstreams").delete().eq("id", id)
+    if (error) return { error: error.message }
+    return {}
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Failed to delete workstream" }
   }
 }
