@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Triadict — Editorial websites for solo professionals</title>
+  <meta name="description" content="Editorial brochure sites for solo professionals and boutique brands. Fixed price, 2–3 weeks, no surprises." />
+  <meta name="theme-color" content="#F8F6F2" />
+
+  <!-- Security: defense-in-depth fallback when no server-side headers (e.g. file://, some static hosts) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://esm.sh; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://formsubmit.co https://esm.sh; form-action 'self' https://formsubmit.co; base-uri 'self'; object-src 'none'; upgrade-insecure-requests" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta name="robots" content="index, follow" />
+
+  <meta property="og:title" content="Triadict — Editorial websites for solo professionals" />
+  <meta property="og:description" content="Editorial brochure sites for solo professionals and boutique brands. Fixed price, 2–3 weeks, no surprises." />
+  <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paper:    '#F8F6F2',
+            paper2:   '#F2EFE8',
+            ink:      '#0A0A0A',
+            coral:    '#E85A2F',
+            mute:     '#6B6B6B',
+            hairline: '#E5E0D8',
+            charcoal: '#0E0E10',
+            bone:     '#FAF7F1',
+            gold:     '#C9B26F',
+            inkblue:  '#3D5AFE',
+            forest:   '#2A3D2E',
+          },
+          fontFamily: {
+            display: ['"Instrument Serif"', 'ui-serif', 'Georgia', 'serif'],
+            body:    ['"Inter"', 'system-ui', 'sans-serif'],
+            mono:    ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+          },
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --paper: #F8F6F2;
+      --paper2: #F2EFE8;
+      --ink: #0A0A0A;
+      --coral: #E85A2F;
+      --mute: #6B6B6B;
+      --hairline: #E5E0D8;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    *, *::before, *::after { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      font-feature-settings: "ss01" on, "cv11" on;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.7'/></svg>");
+      opacity: 0.045;
+      pointer-events: none;
+      z-index: 9999;
+      mix-blend-mode: multiply;
+    }
+    /* Warm atmosphere */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(900px 600px at 88% -5%, rgba(232,90,47,0.06), transparent 60%),
+        radial-gradient(800px 500px at -5% 105%, rgba(201,178,111,0.06), transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    main, header, footer { position: relative; z-index: 1; }
+
+    .font-display { font-family: 'Instrument Serif', serif; font-weight: 400; letter-spacing: -0.02em; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    ::selection { background: var(--coral); color: var(--paper); }
+
+    .hairline { background: var(--hairline); height: 1px; width: 100%; }
+
+    .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mute);
+    }
+    .eyebrow-dark { color: rgba(248,246,242,0.55); }
+
+    /* Word-reveal entrance */
+    .word { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: 0.06em; }
+    .word > span {
+      display: inline-block;
+      transform: translateY(110%);
+      animation: wordUp 1s var(--ease) forwards;
+    }
+    @keyframes wordUp { to { transform: translateY(0); } }
+
+    /* Hairline draw */
+    .hero-rule {
+      transform: scaleX(0);
+      transform-origin: left center;
+      animation: drawRule 1.6s var(--ease) 0.8s forwards;
+    }
+    @keyframes drawRule { to { transform: scaleX(1); } }
+
+    /* In-view reveal */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); }
+    .reveal.is-in { opacity: 1; transform: translateY(0); }
+    .reveal[data-delay="100"] { transition-delay: 0.1s; }
+    .reveal[data-delay="200"] { transition-delay: 0.2s; }
+    .reveal[data-delay="300"] { transition-delay: 0.3s; }
+    .reveal[data-delay="400"] { transition-delay: 0.4s; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      padding: 14px 24px; border-radius: 999px;
+      font-size: 15px; font-weight: 500; letter-spacing: -0.005em;
+      transition: transform 0.25s var(--ease), background-color 0.25s var(--ease), color 0.25s var(--ease), border-color 0.25s var(--ease);
+      will-change: transform;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn:active { transform: translateY(0); }
+    .btn:focus-visible { outline: 2px solid var(--coral); outline-offset: 4px; }
+    .btn .arrow { transition: transform 0.3s var(--ease); }
+    .btn:hover .arrow { transform: translateX(3px); }
+
+    .btn-primary {
+      background: var(--ink); color: var(--paper);
+      box-shadow:
+        0 2px 8px -2px rgba(232,90,47,0.18),
+        0 12px 32px -16px rgba(10,10,10,0.30);
+    }
+    .btn-primary:hover { background: var(--coral); }
+    .btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--hairline); }
+    .btn-ghost:hover { border-color: var(--ink); background: rgba(10,10,10,0.02); }
+
+    /* Underline link */
+    .ulink { position: relative; display: inline-block; }
+    .ulink::after {
+      content: ''; position: absolute; left: 0; bottom: -3px;
+      width: 100%; height: 1px; background: currentColor;
+      transform: scaleX(0); transform-origin: right;
+      transition: transform 0.55s var(--ease);
+    }
+    .ulink:hover::after { transform: scaleX(1); transform-origin: left; }
+
+    /* Nav */
+    .nav-wrap {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      backdrop-filter: saturate(140%) blur(12px);
+      -webkit-backdrop-filter: saturate(140%) blur(12px);
+      background: rgba(248,246,242,0.72);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s var(--ease), background-color 0.3s var(--ease);
+    }
+    .nav-wrap.scrolled { border-color: var(--hairline); background: rgba(248,246,242,0.92); }
+
+    /* Mobile menu */
+    .mmenu { transform: translateY(-100%); transition: transform 0.5s var(--ease); }
+    .mmenu.open { transform: translateY(0); }
+    .ham-line { transition: transform 0.4s var(--ease), opacity 0.3s; }
+    .ham.open .ham-line:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+    .ham.open .ham-line:nth-child(2) { opacity: 0; }
+    .ham.open .ham-line:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
+
+    /* Triadict mark */
+    .mark-float { animation: floatMark 7s ease-in-out infinite; }
+    @keyframes floatMark {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-6px) rotate(2deg); }
+    }
+
+    /* Marquee */
+    .marquee { overflow: hidden; }
+    .marquee-track {
+      display: flex;
+      gap: 4rem;
+      animation: scrollX 40s linear infinite;
+      width: max-content;
+    }
+    @keyframes scrollX {
+      to { transform: translateX(-50%); }
+    }
+    .marquee-item { display: inline-flex; align-items: center; gap: 1rem; flex-shrink: 0; }
+
+    /* Case study covers */
+    .cover {
+      position: relative; overflow: hidden;
+      border-radius: 2px;
+      transition: transform 0.9s var(--ease);
+      will-change: transform;
+    }
+    .case-card:hover .cover { transform: scale(1.012); }
+    .cover .cover-grain {
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/></svg>");
+      opacity: 0.16; mix-blend-mode: overlay; pointer-events: none;
+    }
+    .case-title { position: relative; display: inline-block; }
+    .case-title::after {
+      content: ''; position: absolute; left: 0; bottom: -2px;
+      width: 100%; height: 1px; background: currentColor;
+      transform: scaleX(0); transform-origin: right;
+      transition: transform 0.55s var(--ease);
+    }
+    .case-card:hover .case-title::after { transform: scaleX(1); transform-origin: left; }
+
+    /* Pricing card */
+    .price-card {
+      transition: transform 0.45s var(--ease), border-color 0.45s var(--ease), box-shadow 0.45s var(--ease);
+    }
+    .price-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--ink);
+      box-shadow: 0 24px 60px -36px rgba(10,10,10,0.28);
+    }
+
+    /* Team portrait */
+    .portrait {
+      position: relative; aspect-ratio: 4/5; overflow: hidden;
+      display: flex; align-items: flex-end; justify-content: flex-start;
+      padding: 1.25rem;
+      transition: transform 0.6s var(--ease);
+    }
+    .team-card:hover .portrait { transform: translateY(-4px); }
+    .portrait .mono {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: clamp(8rem, 18vw, 16rem);
+      line-height: 0.78;
+      letter-spacing: -0.05em;
+      transition: transform 0.7s var(--ease);
+    }
+    .team-card:hover .portrait .mono { transform: translate(-4px, -8px); }
+    .portrait .grain {
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/></svg>");
+      opacity: 0.10; mix-blend-mode: overlay; pointer-events: none;
+    }
+    .portrait .corner-tag {
+      position: absolute; top: 1.25rem; right: 1.25rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      letter-spacing: 0.14em; text-transform: uppercase;
+    }
+    .portrait .dot-grid {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(currentColor 1px, transparent 1px);
+      background-size: 18px 18px;
+      opacity: 0.10;
+      mix-blend-mode: overlay;
+    }
+
+    /* FAQ */
+    details {
+      border-top: 1px solid var(--hairline);
+      padding: 28px 0;
+    }
+    details:last-of-type { border-bottom: 1px solid var(--hairline); }
+    summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex; align-items: baseline; justify-content: space-between; gap: 2rem;
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(1.4rem, 2.4vw, 1.75rem);
+      letter-spacing: -0.01em;
+      transition: color 0.25s var(--ease);
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary::after {
+      content: '+';
+      font-family: 'Inter', sans-serif;
+      font-size: 1.4rem; font-weight: 300; color: var(--mute);
+      transition: transform 0.35s var(--ease), color 0.25s var(--ease);
+      flex-shrink: 0;
+    }
+    details[open] summary::after { transform: rotate(45deg); color: var(--coral); }
+    summary:hover { color: var(--coral); }
+    summary:hover::after { color: var(--coral); }
+    details p {
+      margin-top: 1rem; color: var(--mute);
+      max-width: 62ch; line-height: 1.75;
+      font-size: 16px;
+    }
+    details .faq-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.14em; color: var(--mute);
+      margin-right: 1.25rem;
+      display: inline-block;
+      min-width: 28px;
+    }
+
+    /* Form */
+    .field {
+      position: relative;
+      border-bottom: 1px solid rgba(248,246,242,0.25);
+      padding-top: 22px; padding-bottom: 4px;
+      transition: border-color 0.35s var(--ease);
+    }
+    .field-light {
+      border-bottom-color: var(--hairline);
+    }
+    .field:focus-within { border-color: var(--paper); }
+    .field-light:focus-within { border-color: var(--ink); }
+    .field label {
+      position: absolute; left: 0; top: 22px;
+      color: rgba(248,246,242,0.55); font-size: 16px;
+      pointer-events: none;
+      transition: top 0.3s var(--ease), font-size 0.3s var(--ease), color 0.3s var(--ease), letter-spacing 0.3s var(--ease);
+    }
+    .field-light label { color: var(--mute); }
+    .field input, .field textarea {
+      width: 100%; padding: 6px 0;
+      background: transparent; border: none; outline: none;
+      font-family: inherit; font-size: 17px; color: var(--paper);
+      resize: vertical;
+    }
+    .field-light input, .field-light textarea { color: var(--ink); }
+    .field input:focus + label,
+    .field input:not(:placeholder-shown) + label,
+    .field textarea:focus + label,
+    .field textarea:not(:placeholder-shown) + label {
+      top: 0; font-size: 10px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--paper);
+    }
+    .field-light input:focus + label,
+    .field-light input:not(:placeholder-shown) + label,
+    .field-light textarea:focus + label,
+    .field-light textarea:not(:placeholder-shown) + label {
+      color: var(--ink);
+    }
+
+    /* Process row */
+    .process-row {
+      display: grid;
+      grid-template-columns: 100px 1fr 1.1fr 80px;
+      gap: 32px;
+      padding: 32px 0;
+      border-top: 1px solid var(--hairline);
+      align-items: baseline;
+      transition: background-color 0.3s var(--ease), padding 0.3s var(--ease);
+    }
+    .process-row:last-child { border-bottom: 1px solid var(--hairline); }
+    .process-row:hover { background: rgba(232,90,47,0.025); padding-left: 12px; }
+    .process-row:hover .pnum { color: var(--coral); }
+    .pnum {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; letter-spacing: 0.08em;
+      color: var(--mute);
+      transition: color 0.3s var(--ease);
+    }
+    .ptime {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.14em;
+      color: var(--mute);
+      text-transform: uppercase;
+      text-align: right;
+    }
+    @media (max-width: 768px) {
+      .process-row { grid-template-columns: 60px 1fr; gap: 16px; }
+      .process-row .pdesc, .process-row .ptime { grid-column: 2; text-align: left; }
+      .process-row .ptime { margin-top: 4px; }
+    }
+
+    /* Anti-pattern list */
+    .anti-item {
+      padding: 24px 0;
+      border-top: 1px solid var(--hairline);
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 24px;
+      align-items: baseline;
+      transition: padding 0.3s var(--ease);
+    }
+    .anti-item:last-child { border-bottom: 1px solid var(--hairline); }
+    .anti-item:hover { padding-left: 12px; }
+    .anti-x {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: 28px;
+      color: var(--coral);
+      line-height: 1;
+    }
+
+    /* Comparison */
+    .compare-row {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr 1fr 1fr;
+      gap: 24px;
+      padding: 20px 0;
+      border-top: 1px solid var(--hairline);
+      align-items: baseline;
+    }
+    .compare-row:last-child { border-bottom: 1px solid var(--hairline); }
+    .compare-row .label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--mute);
+    }
+    .compare-row .us {
+      color: var(--ink); font-weight: 500; font-size: 15px;
+    }
+    .compare-row .them {
+      color: var(--mute); font-size: 14px;
+    }
+    @media (max-width: 768px) {
+      .compare-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px 24px;
+      }
+      .compare-row .label { grid-column: 1 / -1; }
+    }
+
+    /* Manifesto */
+    .manifesto-quote {
+      font-family: 'Instrument Serif', serif;
+      font-weight: 400;
+      font-size: clamp(2rem, 5.6vw, 5rem);
+      line-height: 1.04;
+      letter-spacing: -0.025em;
+    }
+
+    /* Side-rail TOC */
+    .toc-line {
+      display: flex; justify-content: space-between; gap: 12px;
+      padding: 9px 0; border-top: 1px solid var(--hairline);
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--mute);
+      transition: color 0.25s var(--ease), padding 0.25s var(--ease);
+    }
+    .toc-line:hover { color: var(--ink); padding-left: 4px; }
+    .toc-line:last-child { border-bottom: 1px solid var(--hairline); }
+
+    /* Spec/Concept badge — coral pill */
+    .spec-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 11px;
+      border: 1px solid var(--coral);
+      color: var(--coral);
+      border-radius: 999px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    /* PV monogram fix — extra tracking to keep dot off the V's diagonal */
+    .mono-pv {
+      letter-spacing: 0.02em;
+    }
+    .mono-pv .pv-dot {
+      font-size: 0.85em;
+      display: inline-block;
+      transform: translateY(-0.04em);
+      margin: 0 0.06em;
+    }
+
+    /* Pricing range row — editorial, full-width, no card chrome */
+    .range-row {
+      display: grid;
+      grid-template-columns: 1.1fr 2.2fr 1.3fr;
+      gap: 48px;
+      padding: 44px 0;
+      border-top: 1px solid var(--hairline);
+      align-items: baseline;
+      transition: background-color 0.45s var(--ease), padding-left 0.45s var(--ease);
+    }
+    .range-row:last-of-type { border-bottom: 1px solid var(--hairline); }
+    .range-row:hover { background: rgba(232,90,47,0.03); padding-left: 12px; }
+    .range-row .range-name {
+      transition: transform 0.45s var(--ease), color 0.3s var(--ease);
+      display: inline-block;
+    }
+    .range-row:hover .range-name { transform: translateX(5px); color: var(--coral); }
+    @media (max-width: 768px) {
+      .range-row { grid-template-columns: 1fr; gap: 18px; padding: 32px 0; }
+      .range-row:hover { padding-left: 4px; }
+    }
+
+    /* 3D Triadic — Three.js canvas */
+    .hero-3d-wrap {
+      position: absolute;
+      top: 56px;
+      right: 16px;
+      width: 240px;
+      height: 240px;
+      z-index: 10;
+    }
+    @media (min-width: 1024px) {
+      .hero-3d-wrap {
+        top: 64px;
+        right: 32px;
+        width: 320px;
+        height: 320px;
+      }
+    }
+    .hero-3d-wrap canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+      cursor: grab;
+      touch-action: none;
+    }
+    .hero-3d-wrap canvas:active { cursor: grabbing; }
+    .hero-3d-label {
+      position: absolute;
+      bottom: -6px;
+      right: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--mute);
+      opacity: 0;
+      transition: opacity 0.5s var(--ease);
+      pointer-events: none;
+    }
+    .hero-3d-wrap:hover .hero-3d-label { opacity: 0.75; }
+    @media (max-width: 767px) {
+      .hero-3d-wrap { display: none; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+      .word > span { transform: none !important; }
+      .reveal { opacity: 1 !important; transform: none !important; }
+      .hero-rule { transform: scaleX(1) !important; }
+      .marquee-track { animation: none !important; }
+    }
+
+    /* Type scale */
+    .hero-h {
+      font-family: 'Instrument Serif', serif;
+      font-weight: 400;
+      font-size: clamp(3rem, 9.2vw, 8.5rem);
+      line-height: 0.94;
+      letter-spacing: -0.035em;
+    }
+    .section-h {
+      font-family: 'Instrument Serif', serif;
+      font-weight: 400;
+      font-size: clamp(2.25rem, 5.6vw, 4.75rem);
+      line-height: 1.0;
+      letter-spacing: -0.03em;
+    }
+
+    /* Page number / chapter markers */
+    .chapter {
+      display: flex; align-items: center; gap: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--mute);
+    }
+    .chapter-rom {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: 22px; line-height: 1;
+      color: var(--coral);
+      letter-spacing: 0;
+    }
+
+    /* Section foot */
+    .section-foot {
+      display: flex; justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--mute);
+      padding-top: 2rem;
+      border-top: 1px solid var(--hairline);
+      margin-top: 4rem;
+    }
+  </style>
+</head>
+
+<body class="font-body">
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[60] focus:bg-ink focus:text-paper focus:px-4 focus:py-2 focus:rounded">Skip to content</a>
+
+  <!-- ============================ NAV ============================ -->
+  <header class="nav-wrap">
+    <div class="max-w-[1360px] mx-auto px-6 md:px-10 h-16 md:h-[76px] flex items-center justify-between">
+      <a href="#top" class="flex items-center gap-3 group" aria-label="Triadict — home">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" aria-hidden="true" class="text-ink transition-colors duration-300 group-hover:text-coral">
+          <line x1="12" y1="5.5" x2="5.5" y2="17.5"/>
+          <line x1="12" y1="5.5" x2="18.5" y2="17.5"/>
+          <line x1="6" y1="18" x2="18" y2="18"/>
+          <circle cx="12" cy="5.5" r="1.6" fill="currentColor"/>
+          <circle cx="5.5" cy="18" r="1.6" fill="currentColor"/>
+          <circle cx="18.5" cy="18" r="1.6" fill="currentColor"/>
+        </svg>
+        <span class="font-display text-[22px] tracking-tight leading-none">Triadict</span>
+        <span class="hidden md:inline font-mono text-[10px] tracking-[0.14em] uppercase text-mute ml-1">Studio</span>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-9 text-[14px]" aria-label="Primary">
+        <a href="#process" class="ulink text-ink/90 hover:text-ink">Process</a>
+        <a href="#team" class="ulink text-ink/90 hover:text-ink">Team</a>
+        <a href="#pricing" class="ulink text-ink/90 hover:text-ink">Pricing</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <a href="#contact" class="hidden sm:inline-flex btn btn-primary text-[13.5px] py-[10px] px-4">
+          Start a project
+          <span class="arrow" aria-hidden="true">→</span>
+        </a>
+        <!-- Mobile hamburger -->
+        <button class="ham md:hidden w-10 h-10 flex flex-col items-center justify-center gap-[5px] -mr-2" aria-label="Toggle menu" id="hamBtn">
+          <span class="ham-line block w-5 h-px bg-ink"></span>
+          <span class="ham-line block w-5 h-px bg-ink"></span>
+          <span class="ham-line block w-5 h-px bg-ink"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile menu drawer -->
+    <div class="mmenu md:hidden fixed top-16 left-0 right-0 bg-paper border-b border-hairline" id="mmenu">
+      <nav class="px-6 py-8 flex flex-col" aria-label="Mobile">
+        <a href="#process" class="font-display text-[34px] tracking-tight py-2 menu-link">Process</a>
+        <a href="#team" class="font-display text-[34px] tracking-tight py-2 menu-link">Team</a>
+        <a href="#pricing" class="font-display text-[34px] tracking-tight py-2 menu-link">Pricing</a>
+        <a href="#contact" class="btn btn-primary justify-center mt-6 menu-link">Start a project →</a>
+        <div class="font-mono text-[10px] tracking-[0.14em] uppercase text-mute mt-8 flex justify-between">
+          <span>Triadict · Pune</span>
+          <span>triadict.studio@gmail.com</span>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ============================ HERO ============================ -->
+    <section id="top" class="relative pt-32 md:pt-40 pb-20 md:pb-28">
+      <div class="max-w-[1360px] mx-auto px-6 md:px-10">
+
+        <!-- Masthead row -->
+        <div class="flex flex-wrap items-start justify-between gap-3 mb-12 md:mb-16">
+          <div class="eyebrow flex items-center gap-3">
+            <span>Vol. 01 · Issue 01</span>
+            <span class="text-coral">·</span>
+            <span>Pune, India</span>
+          </div>
+        </div>
+
+        <!-- Hero grid: headline + ToC sidebar -->
+        <div class="grid lg:grid-cols-12 gap-10 lg:gap-16 items-end">
+
+          <div class="lg:col-span-9">
+            <h1 class="hero-h text-ink">
+              <span class="word"><span style="animation-delay: 0.05s">Websites</span></span>
+              <span class="word"><span style="animation-delay: 0.12s">that</span></span>
+              <span class="word"><span style="animation-delay: 0.19s">look</span></span>
+              <span class="word"><span style="animation-delay: 0.26s">like</span></span>
+              <span class="word"><span style="animation-delay: 0.33s">you</span></span>
+              <br class="hidden md:block" />
+              <span class="word"><span style="animation-delay: 0.40s">took</span></span>
+              <span class="word"><span style="animation-delay: 0.47s">it</span></span>
+              <span class="italic text-coral"><span class="word"><span style="animation-delay: 0.54s">seriously.</span></span></span>
+            </h1>
+          </div>
+
+          <!-- ToC sidebar -->
+          <aside class="lg:col-span-3 reveal" data-delay="400" aria-label="Page contents">
+            <div class="font-mono text-[10px] tracking-[0.14em] uppercase text-mute mb-3">In this issue</div>
+            <a href="#process" class="toc-line"><span>I. Process</span><span>p.02</span></a>
+            <a href="#team" class="toc-line"><span>II. Team</span><span>p.03</span></a>
+            <a href="#pricing" class="toc-line"><span>III. Pricing</span><span>p.04</span></a>
+            <a href="#contact" class="toc-line"><span>IV. Contact</span><span>p.05</span></a>
+          </aside>
+        </div>
+
+        <div class="hero-rule h-px bg-ink/25 mt-10 md:mt-14 mb-10 md:mb-14"></div>
+
+        <!-- Sub + CTAs -->
+        <div class="grid md:grid-cols-12 gap-10 md:gap-8 items-end">
+          <p class="md:col-span-7 text-[18px] md:text-[21px] leading-[1.55] text-ink/85 max-w-[54ch] font-display tracking-tight reveal" data-delay="200">
+            Editorial brochure sites for solo professionals and boutique brands. Fixed price. Two to three weeks. <span class="text-coral italic">No surprises.</span>
+          </p>
+
+          <div class="md:col-span-5 flex flex-wrap items-center gap-3 md:justify-end reveal" data-delay="300">
+            <a href="#process" class="btn btn-ghost">
+              See process
+              <span class="arrow" aria-hidden="true">→</span>
+            </a>
+            <a href="#contact" class="btn btn-primary">
+              Start a project
+              <span class="arrow" aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- 3D Triadic — interactive tetrahedron -->
+        <div class="hero-3d-wrap" aria-hidden="true">
+          <canvas id="hero3d"></canvas>
+          <div class="hero-3d-label">drag · spin</div>
+        </div>
+      </div>
+
+      <!-- Bottom marker -->
+      <div class="max-w-[1360px] mx-auto px-6 md:px-10 mt-20 md:mt-28">
+        <div class="flex items-center justify-between font-mono text-[10px] tracking-[0.14em] uppercase text-mute">
+          <span class="flex items-center gap-2">
+            <span class="inline-block w-6 h-px bg-mute"></span>
+            Scroll to begin
+          </span>
+          <span>p. 01</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ MARQUEE ============================ -->
+    <section class="border-y border-hairline bg-paper2 py-6 marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <!-- duplicate the items twice for seamless loop -->
+        <div class="marquee-item font-display italic text-[28px] md:text-[34px] tracking-tight">Editorial</div>
+        <div class="marquee-item text-coral text-[28px] md:text-[34px]">✕</div>
+        <div class="marquee-item font-display italic text-[28px] md:text-[34px] tracking-tight">Restrained</div>
+        <div class="marquee-item text-coral text-[28px] md:text-[34px]">✕</div>
+        <div class="marquee-item font-display italic text-[28px] md:text-[34px] tracking-tight">Fixed-Price</div>
+        <div class="marquee-item text-coral text-[28px] md:text-[34px]">✕</div>
+        <div class="marquee-item font-display italic text-[28px] md:text-[34px] tracking-tight">Two&nbsp;Weeks</div>
+        <div class="marquee-item text-coral text-[28px] md:text-[34px]">✕</div>
+        <div class="marquee-item font-display italic text-[28px] md:text-[34px] tracking-tight">Three&nbsp;Hands</div>
+        <div class="marquee-item text-coral text-[28px] md:text-[34px]">✕</div>
+        <div class="marquee-item font-display italic text-[28px] md:text-[34px] tracking-tight">No&nbsp;Templates</div>
+        <div class="marquee-item text-coral text-[28px] md:text-[34px]">✕</div>
+        <!-- repeat -->
+        <div class="marquee-item font-display italic text-[28px] md:text-[34px] tracking-tight">Editorial</div>
+        <div class="marquee-item text-coral text-[28px] md:text-[34px]">✕</div>
+        <div class="marquee-item font-display italic text-[28px] md:text-[34px] tracking-tight">Restrained</div>
+        <div class="marquee-item text-coral text-[28px] md:text-[34px]">✕</div>
+        <div class="marquee-item font-display italic text-[28px] md:text-[34px] tracking-tight">Fixed-Price</div>
+        <div class="marquee-item text-coral text-[28px] md:text-[34px]">✕</div>
+        <div class="marquee-item font-display italic text-[28px] md:text-[34px] tracking-tight">Two&nbsp;Weeks</div>
+        <div class="marquee-item text-coral text-[28px] md:text-[34px]">✕</div>
+        <div class="marquee-item font-display italic text-[28px] md:text-[34px] tracking-tight">Three&nbsp;Hands</div>
+        <div class="marquee-item text-coral text-[28px] md:text-[34px]">✕</div>
+        <div class="marquee-item font-display italic text-[28px] md:text-[34px] tracking-tight">No&nbsp;Templates</div>
+        <div class="marquee-item text-coral text-[28px] md:text-[34px]">✕</div>
+      </div>
+    </section>
+
+    <!-- ============================ PITCH ============================ -->
+    <section class="py-20 md:py-28">
+      <div class="max-w-[1360px] mx-auto px-6 md:px-10">
+
+        <div class="chapter mb-12 md:mb-16 reveal">
+          <span class="chapter-rom">I</span>
+          <span>The pitch · in three lines</span>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-12 md:gap-16">
+          <div class="reveal">
+            <div class="font-mono text-[44px] md:text-[56px] text-coral leading-none mb-6 font-light">01</div>
+            <h3 class="font-display text-[34px] md:text-[44px] leading-[1.0] tracking-[-0.025em] mb-4">
+              Fixed price.
+            </h3>
+            <p class="text-mute text-[16px] leading-[1.75] max-w-[34ch]">
+              No hourly surprises. You see the number before you commit. We eat the risk if we underestimate — that's the deal.
+            </p>
+          </div>
+          <div class="reveal" data-delay="100">
+            <div class="font-mono text-[44px] md:text-[56px] text-coral leading-none mb-6 font-light">02</div>
+            <h3 class="font-display text-[34px] md:text-[44px] leading-[1.0] tracking-[-0.025em] mb-4">
+              Two to three <span class="italic text-coral">weeks.</span>
+            </h3>
+            <p class="text-mute text-[16px] leading-[1.75] max-w-[34ch]">
+              Not two to three months. We build small, focused sites that ship — and we ship on a calendar, not a vibe.
+            </p>
+          </div>
+          <div class="reveal" data-delay="200">
+            <div class="font-mono text-[44px] md:text-[56px] text-coral leading-none mb-6 font-light">03</div>
+            <h3 class="font-display text-[34px] md:text-[44px] leading-[1.0] tracking-[-0.025em] mb-4">
+              Three people.
+            </h3>
+            <p class="text-mute text-[16px] leading-[1.75] max-w-[34ch]">
+              Not one freelancer juggling eight clients. Not an agency burying you in account managers. Three specialists. One project at a time.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ MANIFESTO ============================ -->
+    <section id="manifesto" class="py-24 md:py-36 border-t border-hairline bg-charcoal text-paper relative overflow-hidden">
+      <!-- Decorative coral arc -->
+      <div class="absolute -top-40 -left-40 w-[700px] h-[700px] rounded-full opacity-[0.07]" style="background: radial-gradient(circle, #E85A2F 0%, transparent 70%);" aria-hidden="true"></div>
+      <div class="absolute -bottom-32 -right-32 w-[600px] h-[600px] rounded-full opacity-[0.05]" style="background: radial-gradient(circle, #C9B26F 0%, transparent 70%);" aria-hidden="true"></div>
+
+      <div class="max-w-[1360px] mx-auto px-6 md:px-10 relative">
+
+        <div class="chapter mb-12 md:mb-16 reveal eyebrow-dark">
+          <span class="chapter-rom text-gold">II</span>
+          <span class="text-paper/60">Manifesto · what we believe</span>
+        </div>
+
+        <blockquote class="reveal" data-delay="100">
+          <p class="manifesto-quote max-w-[22ch] md:max-w-[18ch]">
+            The web doesn't need another <span class="italic text-coral">agency.</span> It needs three people who care about typography, ship on time, and pick up the <span class="italic">phone.</span>
+          </p>
+        </blockquote>
+
+        <div class="grid md:grid-cols-12 gap-8 mt-16 md:mt-20 reveal" data-delay="200">
+          <div class="md:col-span-7 md:col-start-6">
+            <p class="text-paper/75 text-[16.5px] leading-[1.75] max-w-[58ch] mb-6">
+              We started Triadict because the cheap end of the market ships ugly templates, the expensive end ships beautiful PDFs with bloated invoices, and the middle is empty.
+            </p>
+            <p class="text-paper/75 text-[16.5px] leading-[1.75] max-w-[58ch] mb-10">
+              Our entire studio is built on one bet: that solo professionals will pay fair money for the kind of editorial design usually reserved for Series A startups — if someone will just deliver it without the theatre.
+            </p>
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-px bg-coral"></div>
+              <span class="font-mono text-[11px] tracking-[0.14em] uppercase text-paper/60">The studio · 2026</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-foot eyebrow-dark border-t-paper/15 mt-20">
+          <span>Triadict · Vol. 01</span>
+          <span>p. 02 / Manifesto</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ PROCESS ============================ -->
+    <section id="process" class="py-24 md:py-36 border-t border-hairline">
+      <div class="max-w-[1360px] mx-auto px-6 md:px-10">
+
+        <div class="chapter mb-10 reveal">
+          <span class="chapter-rom">V</span>
+          <span>Process · five steps</span>
+        </div>
+
+        <div class="grid md:grid-cols-12 gap-10 mb-14 md:mb-16">
+          <h2 class="section-h md:col-span-7 max-w-[12ch] reveal">
+            How a site <span class="italic text-coral">actually</span> ships.
+          </h2>
+          <p class="md:col-span-4 md:col-start-9 text-mute text-[16.5px] leading-[1.75] reveal" data-delay="200">
+            Five steps. Two to three weeks. Two revision rounds baked in. No mystery meetings, no scope drift, no late invoices.
+          </p>
+        </div>
+
+        <div class="reveal" data-delay="200">
+          <div class="process-row">
+            <div class="pnum">01 / Discovery</div>
+            <div class="font-display text-[26px] md:text-[32px] tracking-[-0.02em] leading-tight">A 30-minute call.</div>
+            <div class="pdesc text-mute text-[15px] leading-[1.7] max-w-[40ch]">
+              You talk, we listen. Brand, audience, the thing your last designer didn't understand. We take notes.
+            </div>
+            <div class="ptime">Day 0</div>
+          </div>
+          <div class="process-row">
+            <div class="pnum">02 / Quote</div>
+            <div class="font-display text-[26px] md:text-[32px] tracking-[-0.02em] leading-tight">Fixed, in 48 hours.</div>
+            <div class="pdesc text-mute text-[15px] leading-[1.7] max-w-[40ch]">
+              One number. Scope attached. The price doesn't move unless you ask for something new — and even then, you see the delta first.
+            </div>
+            <div class="ptime">Day 2</div>
+          </div>
+          <div class="process-row">
+            <div class="pnum">03 / Design</div>
+            <div class="font-display text-[26px] md:text-[32px] tracking-[-0.02em] leading-tight">One week. Two rounds.</div>
+            <div class="pdesc text-mute text-[15px] leading-[1.7] max-w-[40ch]">
+              You see the homepage first, in Figma. We revise twice. We almost never need a third — but if we do, it's on us.
+            </div>
+            <div class="ptime">Days 3–9</div>
+          </div>
+          <div class="process-row">
+            <div class="pnum">04 / Build</div>
+            <div class="font-display text-[26px] md:text-[32px] tracking-[-0.02em] leading-tight">One week. You watch it grow.</div>
+            <div class="pdesc text-mute text-[15px] leading-[1.7] max-w-[40ch]">
+              A staging URL you can refresh. Daily progress. Comments answered in a working day, every time.
+            </div>
+            <div class="ptime">Days 10–16</div>
+          </div>
+          <div class="process-row">
+            <div class="pnum">05 / Ship</div>
+            <div class="font-display text-[26px] md:text-[32px] tracking-[-0.02em] leading-tight">Live, with handoff docs.</div>
+            <div class="pdesc text-mute text-[15px] leading-[1.7] max-w-[40ch]">
+              We push to your domain. We hand you a one-page guide for updates. First month of small tweaks is free.
+            </div>
+            <div class="ptime">Day 17</div>
+          </div>
+        </div>
+
+        <div class="section-foot">
+          <span>V. Process · 17 days</span>
+          <span>p. 05 / Triadict</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ TEAM ============================ -->
+    <section id="team" class="py-24 md:py-36 border-t border-hairline">
+      <div class="max-w-[1360px] mx-auto px-6 md:px-10">
+
+        <div class="chapter mb-10 reveal">
+          <span class="chapter-rom">VI</span>
+          <span>The studio · three people</span>
+        </div>
+
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14 md:mb-20">
+          <h2 class="section-h max-w-[14ch] reveal">
+            The three people <span class="italic text-coral">building</span> your site.
+          </h2>
+          <p class="text-mute max-w-[34ch] text-[15.5px] leading-[1.75] reveal" data-delay="200">
+            Each of us owns one discipline. No account managers. No sub-contractors. You email us, you get us.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8 md:gap-10">
+
+          <!-- Aditya -->
+          <article class="team-card reveal">
+            <div class="portrait" style="background: #0E0E10; color: #F8F6F2;">
+              <div class="grain"></div>
+              <div class="dot-grid"></div>
+              <span class="corner-tag text-coral">AS · 01</span>
+              <span class="mono">A<span class="text-coral">·</span>S</span>
+            </div>
+            <div class="mt-6">
+              <div class="font-mono text-[11px] tracking-[0.14em] uppercase text-mute mb-1">Strategy &amp; Client Lead · Full-Stack &amp; Management</div>
+              <h3 class="font-display text-[28px] tracking-tight leading-tight">Aditya Suryavanshi</h3>
+              <p class="text-mute text-[15px] leading-[1.75] mt-2 max-w-[36ch]">
+                Handles strategy and the client side of every project. Owns the brief, the timeline, and the build. The engineer at the keyboard at midnight if the deploy slips, and the person you'll hear from first.
+              </p>
+              <blockquote class="font-display italic text-[18px] leading-snug mt-5 pl-4 border-l-2 border-coral text-ink/85 max-w-[34ch]">
+                "Most projects don't fail on the build. They fail on the brief."
+              </blockquote>
+              <div class="flex items-center gap-5 mt-5 text-[13.5px]">
+                <a href="https://www.linkedin.com/in/aditya-suryavanshi-1b5608376/" class="ulink text-ink" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                <a href="https://freakyady.netlify.app" class="ulink text-ink" target="_blank" rel="noopener noreferrer">Portfolio ↗</a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Shreeshant -->
+          <article class="team-card reveal" data-delay="100">
+            <div class="portrait" style="background: #E85A2F; color: #F8F6F2;">
+              <div class="grain"></div>
+              <div class="dot-grid"></div>
+              <span class="corner-tag text-paper/80">SB · 02</span>
+              <span class="mono">S<span class="text-ink">·</span>B</span>
+            </div>
+            <div class="mt-6">
+              <div class="font-mono text-[11px] tracking-[0.14em] uppercase text-mute mb-1">Frontend Lead · Design &amp; UI</div>
+              <h3 class="font-display text-[28px] tracking-tight leading-tight">Shreeshant Bokade</h3>
+              <p class="text-mute text-[15px] leading-[1.75] mt-2 max-w-[36ch]">
+                Designs the pages, then builds the front end. Argues for one more pass on the typography. The reason these don't look like a template.
+              </p>
+              <blockquote class="font-display italic text-[18px] leading-snug mt-5 pl-4 border-l-2 border-coral text-ink/85 max-w-[34ch]">
+                "A site without a point of view is just a brochure with hyperlinks."
+              </blockquote>
+              <div class="flex items-center gap-5 mt-5 text-[13.5px]">
+                <a href="https://www.linkedin.com/in/shreeshant-bokade/" class="ulink text-ink" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                <a href="mailto:shr.mail.box@gmail.com" class="ulink text-ink">Email</a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Prajwal -->
+          <article class="team-card reveal" data-delay="200">
+            <div class="portrait" style="background: #FAF7F1; color: #0A0A0A; border: 1px solid #E5E0D8;">
+              <div class="grain"></div>
+              <div class="dot-grid"></div>
+              <span class="corner-tag text-mute">PV · 03</span>
+              <span class="mono mono-pv">P<span class="text-coral pv-dot">·</span>V</span>
+            </div>
+            <div class="mt-6">
+              <div class="font-mono text-[11px] tracking-[0.14em] uppercase text-mute mb-1">Backend &amp; Hosting · Infrastructure</div>
+              <h3 class="font-display text-[28px] tracking-tight leading-tight">Prajwal Valekar</h3>
+              <p class="text-mute text-[15px] leading-[1.75] mt-2 max-w-[36ch]">
+                Owns the back end and the boring infrastructure. The reason your site stays up at 3 a.m. and the deploy pipeline doesn't break on Friday.
+              </p>
+              <blockquote class="font-display italic text-[18px] leading-snug mt-5 pl-4 border-l-2 border-coral text-ink/85 max-w-[34ch]">
+                "Hosting isn't a feature. It's the floor everything else stands on."
+              </blockquote>
+              <div class="flex items-center gap-5 mt-5 text-[13.5px]">
+                <a href="https://www.linkedin.com/in/prajwal-valekar/" class="ulink text-ink" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                <a href="mailto:prajwalvalekar08@gmail.com" class="ulink text-ink">Email</a>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="section-foot">
+          <span>VI. Team · Triadict</span>
+          <span>p. 06 / Triadict</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ PRICING ============================ -->
+    <section id="pricing" class="py-24 md:py-36 border-t border-hairline bg-paper2">
+      <div class="max-w-[1360px] mx-auto px-6 md:px-10">
+
+        <div class="chapter mb-10 reveal">
+          <span class="chapter-rom">VII</span>
+          <span>Pricing · three ranges</span>
+        </div>
+
+        <div class="grid md:grid-cols-12 gap-10 mb-14 md:mb-20">
+          <h2 class="section-h md:col-span-7 max-w-[14ch] reveal">
+            The price is on <span class="italic text-coral">the page.</span>
+          </h2>
+          <p class="md:col-span-4 md:col-start-9 text-mute text-[16.5px] leading-[1.75] reveal" data-delay="200">
+            No "request a quote" theatre. No three-tier comparison games. Our work falls in three ranges depending on scope. Every project gets a fixed quote within 48 hours of the discovery call — the price doesn't move once we agree.
+          </p>
+        </div>
+
+        <!-- Three range rows -->
+        <div class="reveal" data-delay="100">
+
+          <div class="range-row">
+            <div>
+              <h3 class="range-name font-display text-[40px] md:text-[52px] tracking-[-0.025em] leading-none">Essentials</h3>
+              <div class="font-mono text-[12px] tracking-[0.14em] uppercase text-mute mt-3">$800 – $1,500 USD</div>
+            </div>
+            <p class="text-ink/85 text-[16.5px] leading-[1.7] max-w-[52ch]">
+              One-page sites and focused brochures. For solo professionals who need one beautiful page that does its job — fast, clean, accessibility-first.
+            </p>
+            <ul class="space-y-1.5 font-mono text-[10.5px] tracking-[0.14em] uppercase text-mute">
+              <li>Solo realtors</li>
+              <li>Therapists</li>
+              <li>Coaches</li>
+              <li>Personal brands</li>
+            </ul>
+          </div>
+
+          <div class="range-row">
+            <div>
+              <h3 class="range-name font-display text-[40px] md:text-[52px] tracking-[-0.025em] leading-none">Standard</h3>
+              <div class="font-mono text-[12px] tracking-[0.14em] uppercase text-mute mt-3">$1,500 – $3,000 USD</div>
+            </div>
+            <p class="text-ink/85 text-[16.5px] leading-[1.7] max-w-[52ch]">
+              Multi-page editorial sites with depth. Case studies, blog systems, lead capture, schema markup — everything a small business needs to look like a serious one.
+            </p>
+            <ul class="space-y-1.5 font-mono text-[10.5px] tracking-[0.14em] uppercase text-mute">
+              <li>Boutique services</li>
+              <li>Small studios</li>
+              <li>Consultants</li>
+              <li>Real-estate teams</li>
+            </ul>
+          </div>
+
+          <div class="range-row">
+            <div>
+              <h3 class="range-name font-display text-[40px] md:text-[52px] tracking-[-0.025em] leading-none">Bespoke</h3>
+              <div class="font-mono text-[12px] tracking-[0.14em] uppercase text-mute mt-3">$3,000+ USD</div>
+            </div>
+            <p class="text-ink/85 text-[16.5px] leading-[1.7] max-w-[52ch]">
+              Custom briefs that don't fit a range. Complex scope, specific integrations, multi-language sites, or ongoing partnerships. Quoted case-by-case.
+            </p>
+            <ul class="space-y-1.5 font-mono text-[10.5px] tracking-[0.14em] uppercase text-mute">
+              <li>Established brands</li>
+              <li>Multi-stakeholder briefs</li>
+              <li>Long-term retainers</li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- Footer line + CTA link -->
+        <div class="text-center mt-16 md:mt-20">
+          <div class="font-mono text-[11px] tracking-[0.14em] uppercase text-mute">
+            Every quote is fixed · No hourly · No surprises · No retainer lock-ins
+          </div>
+          <a href="#contact" class="inline-flex items-center gap-2 mt-8 text-[15.5px] text-ink ulink">
+            Tell us about your project
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+
+        <div class="section-foot">
+          <span>VII. Pricing · three ranges</span>
+          <span>p. 07 / Triadict</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ CONTACT ============================ -->
+    <section id="contact" class="py-24 md:py-36 border-t border-hairline bg-ink text-paper relative overflow-hidden">
+      <!-- Decorative arcs -->
+      <div class="absolute -top-40 -right-40 w-[700px] h-[700px] rounded-full opacity-[0.09]" style="background: radial-gradient(circle, #E85A2F 0%, transparent 70%);" aria-hidden="true"></div>
+      <div class="absolute -bottom-40 -left-40 w-[600px] h-[600px] rounded-full opacity-[0.05]" style="background: radial-gradient(circle, #C9B26F 0%, transparent 70%);" aria-hidden="true"></div>
+
+      <div class="max-w-[1360px] mx-auto px-6 md:px-10 relative">
+
+        <div class="chapter mb-12 reveal eyebrow-dark">
+          <span class="chapter-rom text-gold">IX</span>
+          <span class="text-paper/60">Contact · one form, four fields</span>
+        </div>
+
+        <div class="grid md:grid-cols-12 gap-10 md:gap-16">
+
+          <div class="md:col-span-6 reveal">
+            <h2 class="font-display text-[clamp(2.75rem,7.6vw,6.5rem)] tracking-[-0.03em] leading-[0.96] mb-8">
+              Send us your <span class="italic text-coral">worst</span> website.
+            </h2>
+            <p class="text-paper/70 text-[17px] leading-[1.75] max-w-[44ch] mb-10">
+              Tell us your current site (or that you don't have one). What's broken, what budget you're working with, what timeline. We reply within a working day.
+            </p>
+
+            <div class="space-y-7">
+              <div>
+                <div class="font-mono text-[10px] tracking-[0.14em] uppercase text-paper/50 mb-2">Or just email</div>
+                <a href="mailto:triadict.studio@gmail.com" class="ulink font-display text-[28px] md:text-[36px] tracking-[-0.02em]">triadict.studio@gmail.com</a>
+              </div>
+              <div>
+                <div class="font-mono text-[10px] tracking-[0.14em] uppercase text-paper/50 mb-3">Direct · Call or WhatsApp</div>
+                <ul class="space-y-2 text-[16px]">
+                  <li class="flex items-baseline justify-between gap-4">
+                    <span class="text-paper/70 font-mono text-[11px] tracking-[0.14em] uppercase">Aditya</span>
+                    <a href="https://wa.me/918262996104" class="ulink" target="_blank" rel="noopener noreferrer">+91 82629 96104</a>
+                  </li>
+                  <li class="flex items-baseline justify-between gap-4">
+                    <span class="text-paper/70 font-mono text-[11px] tracking-[0.14em] uppercase">Shreeshant</span>
+                    <a href="https://wa.me/918530778051" class="ulink" target="_blank" rel="noopener noreferrer">+91 85307 78051</a>
+                  </li>
+                  <li class="flex items-baseline justify-between gap-4">
+                    <span class="text-paper/70 font-mono text-[11px] tracking-[0.14em] uppercase">Prajwal</span>
+                    <a href="https://wa.me/919881909685" class="ulink" target="_blank" rel="noopener noreferrer">+91 98819 09685</a>
+                  </li>
+                </ul>
+              </div>
+              <div class="pt-6 border-t border-paper/15">
+                <div class="font-mono text-[10px] tracking-[0.14em] uppercase text-paper/50 mb-3">Studio hours</div>
+                <div class="text-[15px] text-paper/80 leading-[1.7]">
+                  Mon — Fri · 10:00 — 19:00 IST<br>
+                  Most replies inside 6 working hours.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <form id="contact-form" class="md:col-span-6 md:col-start-7 reveal" data-delay="200"
+                action="https://formsubmit.co/urban.void.69@gmail.com" method="POST">
+            <!-- FormSubmit config -->
+            <input type="hidden" name="_subject" value="New Triadict project inquiry" />
+            <input type="hidden" name="_cc" value="triadict.studio@gmail.com,shr.mail.box@gmail.com,prajwalvalekar08@gmail.com" />
+            <input type="hidden" name="_template" value="table" />
+            <input type="hidden" name="_captcha" value="false" />
+            <input type="hidden" name="_autoresponse" value="Thanks for your note — Triadict will reply within one working day. — Aditya, Shreeshant & Prajwal" />
+            <!-- Honeypot for spam -->
+            <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" />
+
+            <div class="field">
+              <input type="text" id="name" name="name" placeholder=" " required autocomplete="name" />
+              <label for="name">Name</label>
+            </div>
+            <div class="field mt-1">
+              <input type="email" id="email" name="email" placeholder=" " required autocomplete="email" />
+              <label for="email">Email</label>
+            </div>
+            <div class="field mt-1">
+              <input type="url" id="site" name="website" placeholder=" " autocomplete="url" />
+              <label for="site">Current website (optional)</label>
+            </div>
+            <div class="field mt-1">
+              <textarea id="brief" name="brief" rows="4" placeholder=" " required></textarea>
+              <label for="brief">What you need</label>
+            </div>
+            <button type="submit" id="contact-submit" class="btn mt-10 bg-coral text-paper hover:bg-paper hover:text-ink w-full justify-center">
+              Send it →
+            </button>
+            <p id="contact-status" class="font-mono text-[10px] tracking-[0.14em] uppercase text-paper/40 mt-5 text-center">
+              We reply within one working day · No newsletter, ever
+            </p>
+          </form>
+
+        </div>
+
+        <div class="section-foot eyebrow-dark border-t-paper/15 mt-20">
+          <span>IX. Contact · Triadict</span>
+          <span>p. 09 / Triadict</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================ FOOTER ============================ -->
+  <footer class="bg-paper border-t border-hairline pt-16 md:pt-20 pb-10">
+    <div class="max-w-[1360px] mx-auto px-6 md:px-10">
+
+      <!-- Big wordmark -->
+      <div class="font-display tracking-[-0.04em] leading-[0.85] text-[clamp(5rem,18vw,16rem)] mb-14 md:mb-16 flex items-end gap-4">
+        <span>Triadict</span>
+        <span class="text-coral italic text-[clamp(2rem,6vw,5rem)] mb-3 md:mb-6">.</span>
+      </div>
+
+      <div class="grid md:grid-cols-12 gap-10 md:gap-8 pb-12 border-b border-hairline">
+        <div class="md:col-span-4">
+          <div class="flex items-center gap-3 mb-4">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" class="text-ink">
+              <line x1="12" y1="5.5" x2="5.5" y2="17.5"/>
+              <line x1="12" y1="5.5" x2="18.5" y2="17.5"/>
+              <line x1="6" y1="18" x2="18" y2="18"/>
+              <circle cx="12" cy="5.5" r="1.6" fill="currentColor"/>
+              <circle cx="5.5" cy="18" r="1.6" fill="currentColor"/>
+              <circle cx="18.5" cy="18" r="1.6" fill="currentColor"/>
+            </svg>
+            <span class="font-display text-[20px]">Triadict Studio</span>
+          </div>
+          <p class="text-mute text-[14.5px] leading-[1.75] max-w-[34ch]">
+            Editorial websites for solo professionals and boutique brands. Fixed price, two to three weeks, no surprises.
+          </p>
+          <div class="mt-6 font-mono text-[10px] tracking-[0.14em] uppercase text-mute">
+            Pune, India · Serving clients globally
+          </div>
+        </div>
+
+        <div class="md:col-span-2 md:col-start-6">
+          <div class="font-mono text-[10px] tracking-[0.14em] uppercase text-mute mb-4">Studio</div>
+          <ul class="space-y-2 text-[14.5px]">
+            <li><a href="#process" class="ulink">Process</a></li>
+            <li><a href="#team" class="ulink">Team</a></li>
+          </ul>
+        </div>
+
+        <div class="md:col-span-2">
+          <div class="font-mono text-[10px] tracking-[0.14em] uppercase text-mute mb-4">Services</div>
+          <ul class="space-y-2 text-[14.5px]">
+            <li><a href="#pricing" class="ulink">Pricing</a></li>
+            <li><a href="#contact" class="ulink">Start a project</a></li>
+          </ul>
+        </div>
+
+        <div class="md:col-span-3">
+          <div class="font-mono text-[10px] tracking-[0.14em] uppercase text-mute mb-4">Contact</div>
+          <ul class="space-y-2 text-[14.5px]">
+            <li><a href="mailto:triadict.studio@gmail.com" class="ulink">triadict.studio@gmail.com</a></li>
+            <li><a href="https://wa.me/918262996104" class="ulink" target="_blank" rel="noopener noreferrer">+91 82629 96104</a></li>
+            <li><a href="https://www.linkedin.com/in/aditya-suryavanshi-1b5608376/" class="ulink" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-8 font-mono text-[11px] tracking-[0.14em] uppercase text-mute">
+        <div>© 2026 Triadict Studio · Made in Pune</div>
+        <div class="flex items-center gap-4 flex-wrap">
+          <span>Vol. 01 · Issue 01</span>
+          <span class="text-hairline">·</span>
+          <span>Build 002</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================ SCRIPTS ============================ -->
+  <script>
+    // Nav scroll state
+    const nav = document.querySelector('.nav-wrap');
+    const onScroll = () => {
+      if (window.scrollY > 12) nav.classList.add('scrolled');
+      else nav.classList.remove('scrolled');
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    // Mobile menu
+    const ham = document.getElementById('hamBtn');
+    const mm = document.getElementById('mmenu');
+    const closeMenu = () => { ham.classList.remove('open'); mm.classList.remove('open'); document.body.style.overflow = ''; };
+    const openMenu = () => { ham.classList.add('open'); mm.classList.add('open'); document.body.style.overflow = 'hidden'; };
+    ham.addEventListener('click', () => {
+      if (ham.classList.contains('open')) closeMenu();
+      else openMenu();
+    });
+    document.querySelectorAll('.menu-link').forEach(a => a.addEventListener('click', closeMenu));
+
+    // In-view reveal
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const revealEls = document.querySelectorAll('.reveal');
+    if (prefersReduced) {
+      revealEls.forEach(el => el.classList.add('is-in'));
+    } else if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-in');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { rootMargin: '0px 0px -8% 0px', threshold: 0.1 });
+      revealEls.forEach(el => io.observe(el));
+    } else {
+      revealEls.forEach(el => el.classList.add('is-in'));
+    }
+
+    // Safety net: reveal anything still hidden after 2.5s
+    // (catches puppeteer fullPage screenshots, slow connections, fast-scroll users)
+    setTimeout(() => {
+      revealEls.forEach(el => el.classList.add('is-in'));
+    }, 2500);
+
+    // Contact form — AJAX submit to FormSubmit, no page navigation
+    const form = document.getElementById('contact-form');
+    const submitBtn = document.getElementById('contact-submit');
+    const status = document.getElementById('contact-status');
+    if (form) {
+      const originalBtn = submitBtn.textContent.trim();
+      const originalStatus = status.textContent.trim();
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (form._honey && form._honey.value) return;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending…';
+        status.textContent = 'Delivering your note to the studio…';
+        try {
+          const res = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { 'Accept': 'application/json' }
+          });
+          if (res.ok) {
+            submitBtn.textContent = 'Sent ✓';
+            status.textContent = 'Got it. We\'ll reply within one working day.';
+            form.querySelectorAll('input:not([type=hidden]), textarea').forEach(f => f.value = '');
+            setTimeout(() => {
+              submitBtn.disabled = false;
+              submitBtn.textContent = originalBtn;
+              status.textContent = originalStatus;
+            }, 6000);
+          } else {
+            throw new Error('Submission failed');
+          }
+        } catch (err) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalBtn;
+          // Safe DOM construction (no innerHTML — XSS-defensive even though content is hardcoded)
+          status.textContent = 'Something broke — please email ';
+          const fallbackLink = document.createElement('a');
+          fallbackLink.href = 'mailto:triadict.studio@gmail.com';
+          fallbackLink.className = 'ulink';
+          fallbackLink.textContent = 'triadict.studio@gmail.com';
+          status.appendChild(fallbackLink);
+          status.appendChild(document.createTextNode(' directly.'));
+        }
+      });
+    }
+  </script>
+
+  <!-- 3D Triadic — Three.js -->
+  <script type="module">
+    import * as THREE from 'https://esm.sh/three@0.160.0';
+
+    const canvas = document.getElementById('hero3d');
+    if (canvas) {
+      const wrap = canvas.parentElement;
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+      camera.position.z = 4.6;
+
+      function resize() {
+        const w = wrap.clientWidth;
+        renderer.setSize(w, w, false);
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      // --- Geometry: regular tetrahedron, apex up ---
+      const apex = new THREE.Vector3(0, 1.1, 0);
+      const baseY = -0.55;
+      const baseR = 1.0;
+      const base = [
+        new THREE.Vector3(0, baseY, baseR),
+        new THREE.Vector3(baseR * Math.cos(7 * Math.PI / 6), baseY, baseR * Math.sin(7 * Math.PI / 6)),
+        new THREE.Vector3(baseR * Math.cos(11 * Math.PI / 6), baseY, baseR * Math.sin(11 * Math.PI / 6)),
+      ];
+
+      const group = new THREE.Group();
+
+      // Nodes (spheres) — coral apex, ink base
+      const nodeGeom = new THREE.SphereGeometry(0.085, 32, 32);
+      const coralMat = new THREE.MeshBasicMaterial({ color: 0xE85A2F });
+      const inkMat = new THREE.MeshBasicMaterial({ color: 0x0A0A0A });
+
+      const apexNode = new THREE.Mesh(nodeGeom, coralMat);
+      apexNode.position.copy(apex);
+      group.add(apexNode);
+
+      base.forEach(p => {
+        const n = new THREE.Mesh(nodeGeom, inkMat);
+        n.position.copy(p);
+        group.add(n);
+      });
+
+      // Subtle coral halo around apex node
+      const haloGeom = new THREE.SphereGeometry(0.16, 32, 32);
+      const haloMat = new THREE.MeshBasicMaterial({
+        color: 0xE85A2F, transparent: true, opacity: 0.15
+      });
+      const halo = new THREE.Mesh(haloGeom, haloMat);
+      halo.position.copy(apex);
+      group.add(halo);
+
+      // Edges — translucent ink hairlines
+      const edgeMat = new THREE.LineBasicMaterial({
+        color: 0x0A0A0A, transparent: true, opacity: 0.55
+      });
+      function addEdge(a, b) {
+        const g = new THREE.BufferGeometry().setFromPoints([a, b]);
+        group.add(new THREE.Line(g, edgeMat));
+      }
+      base.forEach(b => addEdge(apex, b));
+      addEdge(base[0], base[1]);
+      addEdge(base[1], base[2]);
+      addEdge(base[2], base[0]);
+
+      scene.add(group);
+
+      // Start with a slight tilt so it doesn't look flat on load
+      group.rotation.x = -0.22;
+      group.rotation.y = 0.45;
+
+      // --- Interaction: drag-to-spin, inertia decay, auto-resume ---
+      let isDragging = false;
+      let lastX = 0, lastY = 0;
+      let velX = 0, velY = 0;
+      let autoSpin = prefersReduced ? 0 : 0.0045;
+      let autoResumeTimer = null;
+
+      function onDown(e) {
+        isDragging = true;
+        autoSpin = 0;
+        if (autoResumeTimer) clearTimeout(autoResumeTimer);
+        const p = e.touches ? e.touches[0] : e;
+        lastX = p.clientX; lastY = p.clientY;
+        velX = 0; velY = 0;
+        if (e.cancelable) e.preventDefault();
+      }
+      function onMove(e) {
+        if (!isDragging) return;
+        const p = e.touches ? e.touches[0] : e;
+        const dx = p.clientX - lastX;
+        const dy = p.clientY - lastY;
+        velY = dx * 0.008;
+        velX = dy * 0.008;
+        group.rotation.y += velY;
+        group.rotation.x += velX;
+        lastX = p.clientX; lastY = p.clientY;
+      }
+      function onUp() {
+        if (!isDragging) return;
+        isDragging = false;
+        if (!prefersReduced) {
+          autoResumeTimer = setTimeout(() => { autoSpin = 0.0045; }, 2200);
+        }
+      }
+
+      canvas.addEventListener('mousedown', onDown);
+      canvas.addEventListener('touchstart', onDown, { passive: false });
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('touchmove', onMove, { passive: true });
+      window.addEventListener('mouseup', onUp);
+      window.addEventListener('touchend', onUp);
+
+      // --- Animation loop ---
+      function animate() {
+        if (!isDragging) {
+          group.rotation.y += velY * 0.94 + autoSpin;
+          group.rotation.x += velX * 0.94;
+          velX *= 0.9;
+          velY *= 0.9;
+        }
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+      }
+      animate();
+    }
+  </script>
+</body>
+</html>

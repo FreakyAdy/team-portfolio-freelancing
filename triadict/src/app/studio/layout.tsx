@@ -1,0 +1,328 @@
+"use client"
+
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { 
+  LayoutDashboard, 
+  Handshake, 
+  FolderKanban, 
+  Users, 
+  FileText, 
+  Receipt, 
+  Settings,
+  BookOpen,
+  ChevronDown,
+  LogOut,
+  Bell,
+  Search,
+  Menu,
+  X
+} from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
+import type { User } from "@supabase/supabase-js"
+
+const isDev = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-project')
+const demoUser = { id: 'demo', email: 'studio@triadict.com' } as User
+
+const navSections = [
+  {
+    label: "Overview",
+    items: [
+      { href: "/studio/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: "Sales",
+    items: [
+      { href: "/studio/deals", label: "Deals", icon: Handshake },
+    ],
+  },
+  {
+    label: "Delivery",
+    items: [
+      { href: "/studio/projects", label: "Projects", icon: FolderKanban },
+      { href: "/studio/clients", label: "Clients", icon: Users },
+    ],
+  },
+  {
+    label: "Finance",
+    items: [
+      { href: "/studio/invoices", label: "Invoices", icon: Receipt },
+      { href: "/studio/payments", label: "Payments", icon: FileText },
+    ],
+  },
+  {
+    label: "Resources",
+    items: [
+      { href: "/studio/templates", label: "Templates", icon: FileText },
+      { href: "/studio/knowledge", label: "Knowledge", icon: BookOpen },
+    ],
+  },
+]
+
+export default function StudioLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const [user, setUser] = useState<User | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const supabase = createClient()
+
+  useEffect(() => {
+    const getUser = async () => {
+      if (isDev) {
+        setUser(demoUser)
+        setLoading(false)
+        return
+      }
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      setLoading(false)
+      
+      if (!user) {
+        router.push("/auth/login?redirect=/studio")
+      }
+    }
+    getUser()
+  }, [supabase, router])
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    router.push("/")
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-paper flex items-center justify-center">
+        <div className="flex items-center gap-3">
+          <div className="w-5 h-5 border-2 border-coral border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-mute text-sm">Loading...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null
+  }
+
+  return (
+    <div className="min-h-screen bg-paper">
+      {/* Skip to content */}
+      <a 
+        href="#main" 
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[60] focus:bg-ink focus:text-paper focus:px-4 focus:py-2 focus:rounded"
+      >
+        Skip to content
+      </a>
+
+      {/* Mobile header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-paper border-b border-hairline z-50 flex items-center justify-between px-4">
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="w-10 h-10 flex items-center justify-center"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+          <Link href="/studio/dashboard" className="flex items-center gap-2">
+            <svg 
+              width="18" 
+              height="18" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="1.25"
+              className="text-coral"
+            >
+              <line x1="12" y1="5.5" x2="5.5" y2="17.5"/>
+              <line x1="12" y1="5.5" x2="18.5" y2="17.5"/>
+              <line x1="6" y1="18" x2="18" y2="18"/>
+              <circle cx="12" cy="5.5" r="1.6" fill="currentColor"/>
+              <circle cx="5.5" cy="18" r="1.6" fill="currentColor"/>
+              <circle cx="18.5" cy="18" r="1.6" fill="currentColor"/>
+            </svg>
+            <span className="font-display text-lg tracking-tight">Studio</span>
+          </Link>
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="w-10 h-10 flex items-center justify-center relative">
+            <Bell className="w-5 h-5 text-mute" />
+            <span className="absolute top-2 right-2 w-2 h-2 bg-coral rounded-full"></span>
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile sidebar overlay */}
+      {mobileMenuOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/20 z-40"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`
+        fixed top-0 left-0 h-full bg-paper border-r border-hairline z-40
+        transition-all duration-300
+        ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+        ${sidebarOpen ? "w-[260px]" : "w-[72px]"}
+      `}>
+        {/* Logo */}
+        <div className="h-16 flex items-center px-5 border-b border-hairline">
+          <Link href="/studio/dashboard" className="flex items-center gap-3">
+            <svg 
+              width="22" 
+              height="22" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="1.25"
+              className="text-coral flex-shrink-0"
+            >
+              <line x1="12" y1="5.5" x2="5.5" y2="17.5"/>
+              <line x1="12" y1="5.5" x2="18.5" y2="17.5"/>
+              <line x1="6" y1="18" x2="18" y2="18"/>
+              <circle cx="12" cy="5.5" r="1.6" fill="currentColor"/>
+              <circle cx="5.5" cy="18" r="1.6" fill="currentColor"/>
+              <circle cx="18.5" cy="18" r="1.6" fill="currentColor"/>
+            </svg>
+            {sidebarOpen && (
+              <span className="font-display text-lg tracking-tight">Studio</span>
+            )}
+          </Link>
+        </div>
+
+        {/* Navigation */}
+        <nav className="py-6 px-3 flex-1 overflow-y-auto">
+          {navSections.map((section) => (
+            <div key={section.label} className="mb-6">
+              {sidebarOpen && (
+                <div className="px-3 mb-2 font-mono text-[10px] tracking-[0.14em] uppercase text-mute">
+                  {section.label}
+                </div>
+              )}
+              <div className="space-y-1">
+                {section.items.map((item) => {
+                  const isActive = pathname.startsWith(item.href)
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`
+                        sidebar-link relative
+                        ${isActive ? "active" : ""}
+                        ${!sidebarOpen ? "justify-center px-0" : ""}
+                      `}
+                      title={!sidebarOpen ? item.label : undefined}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <item.icon className="w-5 h-5 flex-shrink-0" />
+                      {sidebarOpen && <span>{item.label}</span>}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        {/* Bottom section */}
+        <div className="p-3 border-t border-hairline">
+          {/* Settings */}
+          <Link
+            href="/studio/settings"
+            className={`
+              sidebar-link
+              ${pathname.startsWith("/studio/settings") ? "active" : ""}
+              ${!sidebarOpen ? "justify-center px-0" : ""}
+            `}
+          >
+            <Settings className="w-5 h-5 flex-shrink-0" />
+            {sidebarOpen && <span>Settings</span>}
+          </Link>
+
+          {/* User menu */}
+          <div className={`mt-4 flex items-center gap-3 ${!sidebarOpen ? "justify-center" : ""}`}>
+            <div className="w-8 h-8 rounded-full bg-coral/10 flex items-center justify-center flex-shrink-0">
+              <span className="text-coral text-sm font-medium">
+                {user.email?.charAt(0).toUpperCase() || "U"}
+              </span>
+            </div>
+            {sidebarOpen && (
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate">{user.email?.split("@")[0]}</div>
+                <div className="text-xs text-mute truncate">{user.email}</div>
+              </div>
+            )}
+            {sidebarOpen && (
+              <button 
+                onClick={handleSignOut}
+                className="p-2 text-mute hover:text-ink transition-colors"
+                title="Sign out"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <main 
+        id="main"
+        className={`
+          transition-all duration-300 min-h-screen
+          lg:pt-0 pt-16
+          ${sidebarOpen ? "lg:ml-[260px]" : "lg:ml-[72px]"}
+        `}
+      >
+        {/* Top bar (desktop) */}
+        <div className="hidden lg:flex h-16 border-b border-hairline items-center justify-between px-8">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="w-8 h-8 flex items-center justify-center text-mute hover:text-ink transition-colors"
+              aria-label="Toggle sidebar"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-mute" />
+              <input 
+                type="text" 
+                placeholder="Search..." 
+                className="w-64 h-9 pl-9 pr-4 bg-paper2 border border-hairline rounded-lg text-sm focus:outline-none focus:border-coral transition-colors"
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <button className="relative w-9 h-9 flex items-center justify-center text-mute hover:text-ink transition-colors">
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-coral rounded-full"></span>
+            </button>
+            <Link 
+              href="/"
+              className="text-sm text-mute hover:text-ink transition-colors"
+              target="_blank"
+            >
+              View site ↗
+            </Link>
+          </div>
+        </div>
+
+        {/* Page content */}
+        <div className="p-6 lg:p-8">
+          {children}
+        </div>
+      </main>
+    </div>
+  )
+}
