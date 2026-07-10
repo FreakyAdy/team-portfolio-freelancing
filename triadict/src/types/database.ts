@@ -766,3 +766,39 @@ export interface CreateTicketInput {
   category: TicketCategory
   priority: TicketPriority
 }
+
+export interface CreateTemplateInput {
+  name: string
+  category: string
+  content_md: string
+  merge_fields?: string[]
+  locked_sections?: string[]
+  is_active?: boolean
+}
+
+export interface UpdateTemplateInput {
+  id: string
+  name?: string
+  category?: string
+  content_md?: string
+  merge_fields?: string[]
+  locked_sections?: string[]
+  is_active?: boolean
+}
+
+export interface CreateKnowledgeInput {
+  title: string
+  category: KnowledgeArticle['category']
+  content_md: string
+  tags?: string[]
+  status?: 'draft' | 'published' | 'archived'
+}
+
+export interface UpdateKnowledgeInput {
+  id: string
+  title?: string
+  category?: KnowledgeArticle['category']
+  content_md?: string
+  tags?: string[]
+  status?: 'draft' | 'published' | 'archived'
+}
