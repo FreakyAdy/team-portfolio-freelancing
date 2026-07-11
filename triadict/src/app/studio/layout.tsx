@@ -191,7 +191,7 @@ export default function StudioLayout({
 
       {/* Sidebar */}
       <aside className={`
-        fixed top-0 left-0 h-full bg-paper border-r border-hairline z-40 flex flex-col
+        fixed top-0 left-0 h-full bg-paper border-r border-hairline z-40 flex flex-col overflow-hidden
         transition-all duration-300
         ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         ${sidebarOpen ? "w-[200px]" : "w-[72px]"}>
@@ -246,7 +246,7 @@ export default function StudioLayout({
         </nav>
 
         {/* Bottom section */}
-        <div className="p-3 border-t border-hairline">
+        <div className="p-3 border-t border-hairline overflow-hidden shrink-0">
           {/* Settings */}
           <Link
             href="/studio/settings"
@@ -261,22 +261,22 @@ export default function StudioLayout({
           </Link>
 
           {/* User menu */}
-          <div className={`mt-4 flex items-center gap-3 ${!sidebarOpen ? "justify-center" : ""}`}>
+          <div className={`mt-3 flex items-center gap-2 overflow-hidden ${!sidebarOpen ? "justify-center" : ""}`}>
             <div className="w-8 h-8 rounded-full bg-coral/10 flex items-center justify-center flex-shrink-0">
               <span className="text-coral text-sm font-medium">
                 {user.email?.charAt(0).toUpperCase() || "U"}
               </span>
             </div>
             {sidebarOpen && (
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate">{user.email?.split("@")[0]}</div>
-                <div className="text-xs text-mute truncate">{user.email}</div>
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <div className="text-sm font-medium truncate leading-tight">{user.email?.split("@")[0]}</div>
+                <div className="text-xs text-mute truncate leading-tight">{user.email}</div>
               </div>
             )}
             {sidebarOpen && (
               <button 
                 onClick={handleSignOut}
-                className="p-2 text-mute hover:text-ink transition-colors"
+                className="p-1.5 text-mute hover:text-ink transition-colors flex-shrink-0"
                 title="Sign out"
               >
                 <LogOut className="w-4 h-4" />
