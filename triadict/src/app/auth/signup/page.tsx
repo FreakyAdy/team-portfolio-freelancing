@@ -5,6 +5,9 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Mail, Lock, Eye, EyeOff, ArrowRight, User } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { demoSignup } from "@/lib/auth/demo"
+
+const isDev = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-project')
 
 export default function SignupPage() {
   const router = useRouter()
@@ -16,8 +19,6 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  
-  const supabase = createClient()
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,6 +37,18 @@ export default function SignupPage() {
       return
     }
 
+    if (isDev) {
+      const result = demoSignup(fullName || email, email, password)
+      if (result.error) {
+        setError(result.error)
+        setLoading(false)
+        return
+      }
+      router.push("/auth/login")
+      return
+    }
+
+    const supabase = createClient()
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -52,7 +65,7 @@ export default function SignupPage() {
       return
     }
 
-    router.push("/auth/verify")
+    router.push("/auth/login")
   }
 
   return (
@@ -84,7 +97,9 @@ export default function SignupPage() {
         {/* Signup form */}
         <div className="bg-paper border border-hairline rounded-xl p-8">
           <h1 className="font-display text-2xl text-ink mb-2">Create account</h1>
-          <p className="text-mute font-sans mb-6">Join Triadict Studio</p>
+          <p className="text-mute font-sans mb-6">
+            {isDev ? "Demo mode — create a local account" : "Join Triadict Studio"}
+          </p>
 
           {error && (
             <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
@@ -153,7 +168,7 @@ export default function SignupPage() {
                   type={showPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-paper border border-hairline rounded-lg text-sm font-sans focus:outline-none focus:ring-2 focus:ring-coral/30 focus:border-coral"
+                  className="w-full pl-10 pr-12 py-3 bg-paper border border-hairline rounded-lg text-sm font-sans focus:outline-none focus:ring-2 focus:ring-coral/30 focus:border-coral"
                   placeholder="••••••••"
                   required
                 />

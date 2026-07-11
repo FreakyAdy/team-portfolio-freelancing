@@ -5,6 +5,9 @@ import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { demoLogin } from "@/lib/auth/demo"
+
+const isDev = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-project')
 
 function LoginForm() {
   const router = useRouter()
@@ -16,14 +19,24 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  
-  const supabase = createClient()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError("")
 
+    if (isDev) {
+      const result = demoLogin(email, password)
+      if (result.error) {
+        setError(result.error)
+        setLoading(false)
+        return
+      }
+      router.push(redirect)
+      return
+    }
+
+    const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -42,7 +55,9 @@ function LoginForm() {
   return (
     <div className="bg-paper border border-hairline rounded-xl p-8">
       <h1 className="font-display text-2xl text-ink mb-2">Welcome back</h1>
-      <p className="text-mute font-sans mb-6">Sign in to your account</p>
+      <p className="text-mute font-sans mb-6">
+        {isDev ? "Demo mode — enter credentials to continue" : "Sign in to your account"}
+      </p>
 
       {error && (
         <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
@@ -56,11 +71,11 @@ function LoginForm() {
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mute" />
             <input
-              type="email"
+              type="text"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full pl-10 pr-4 py-3 bg-paper border border-hairline rounded-lg text-sm font-sans focus:outline-none focus:ring-2 focus:ring-coral/30 focus:border-coral"
-              placeholder="your@email.com"
+              placeholder={isDev ? "Aditya" : "your@email.com"}
               required
             />
           </div>
@@ -93,9 +108,6 @@ function LoginForm() {
             <input type="checkbox" className="w-4 h-4 rounded border-hairline text-coral focus:ring-coral/30" />
             <span className="text-sm font-sans text-mute">Remember me</span>
           </label>
-          <Link href="/auth/forgot-password" className="text-sm font-sans text-coral hover:text-coral/80 transition-colors">
-            Forgot password?
-          </Link>
         </div>
 
         <button
@@ -159,25 +171,6 @@ export default function LoginPage() {
             Sign up
           </Link>
         </p>
-
-        {/* Dev bypass */}
-        <div className="mt-4 p-4 bg-paper2 border border-hairline rounded-lg">
-          <p className="text-xs font-mono text-mute mb-3 uppercase tracking-wider">Dev Mode — Quick Access</p>
-          <div className="space-y-2">
-            <Link 
-              href="/studio/dashboard" 
-              className="block w-full px-4 py-2.5 bg-ink text-paper text-sm text-center rounded-lg hover:bg-charcoal transition-colors"
-            >
-              Studio Dashboard
-            </Link>
-            <Link 
-              href="/portal/dashboard" 
-              className="block w-full px-4 py-2.5 border border-hairline text-sm text-center rounded-lg hover:bg-paper2 transition-colors"
-            >
-              Client Portal
-            </Link>
-          </div>
-        </div>
       </div>
     </div>
   )

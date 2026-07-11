@@ -15,10 +15,10 @@ import {
   X
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { demoGetUser, demoLogout } from "@/lib/auth/demo"
 import type { User } from "@supabase/supabase-js"
 
 const isDev = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-project')
-const demoUser = { id: 'demo', email: 'client@example.com' } as User
 
 const navLinks = [
   { href: "/portal/dashboard", label: "Overview", icon: LayoutDashboard },
@@ -42,8 +42,12 @@ export default function PortalLayout({
   useEffect(() => {
     const getUser = async () => {
       if (isDev) {
-        setUser(demoUser)
+        const demoUser = demoGetUser()
+        setUser(demoUser ? { id: 'demo', email: demoUser.email } as User : null)
         setLoading(false)
+        if (!demoUser) {
+          router.push("/auth/login?redirect=/portal")
+        }
         return
       }
       const { data: { user } } = await supabase.auth.getUser()
@@ -58,6 +62,11 @@ export default function PortalLayout({
   }, [supabase, router])
 
   const handleSignOut = async () => {
+    if (isDev) {
+      demoLogout()
+      router.push("/")
+      return
+    }
     await supabase.auth.signOut()
     router.push("/")
   }

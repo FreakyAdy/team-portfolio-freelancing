@@ -205,11 +205,11 @@ export default function HomePage() {
               </button>
               {dashDropdownOpen && (
                 <div className="absolute top-full right-0 mt-3 w-52 bg-paper border border-hairline shadow-[0_8px_32px_-8px_rgba(10,10,10,0.12)] py-2 z-50">
-                  <a href="/studio/dashboard" className="block px-4 py-2.5 text-[13.5px] text-ink/85 hover:text-ink hover:bg-paper2 transition-colors">
+                  <a href="/auth/login?redirect=/studio/dashboard" className="block px-4 py-2.5 text-[13.5px] text-ink/85 hover:text-ink hover:bg-paper2 transition-colors">
                     <span className="font-medium">Studio</span>
                     <span className="block text-[11px] text-mute mt-0.5">CRM & project management</span>
                   </a>
-                  <a href="/portal/dashboard" className="block px-4 py-2.5 text-[13.5px] text-ink/85 hover:text-ink hover:bg-paper2 transition-colors">
+                  <a href="/auth/login?redirect=/portal/dashboard" className="block px-4 py-2.5 text-[13.5px] text-ink/85 hover:text-ink hover:bg-paper2 transition-colors">
                     <span className="font-medium">Client Portal</span>
                     <span className="block text-[11px] text-mute mt-0.5">Project status & invoices</span>
                   </a>
@@ -243,10 +243,10 @@ export default function HomePage() {
             <a href="#pricing" className="font-display text-[34px] tracking-tight py-2 menu-link" onClick={closeMobileMenu}>Pricing</a>
             <div className="border-t border-hairline my-3 pt-4">
               <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-mute mb-3">Dashboards</div>
-              <a href="/studio/dashboard" className="font-display text-[26px] tracking-tight py-1.5 menu-link block">
+              <a href="/auth/login?redirect=/studio/dashboard" className="font-display text-[26px] tracking-tight py-1.5 menu-link block">
                 Studio
               </a>
-              <a href="/portal/dashboard" className="font-display text-[26px] tracking-tight py-1.5 menu-link block">
+              <a href="/auth/login?redirect=/portal/dashboard" className="font-display text-[26px] tracking-tight py-1.5 menu-link block">
                 Client Portal
               </a>
             </div>
@@ -746,8 +746,8 @@ export default function HomePage() {
             <div className="md:col-span-2">
               <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-mute mb-4">Dashboards</div>
               <ul className="space-y-2 text-[14.5px]">
-                <li><a href="/studio/dashboard" className="ulink">Studio CRM</a></li>
-                <li><a href="/portal/dashboard" className="ulink">Client Portal</a></li>
+                <li><a href="/auth/login?redirect=/studio/dashboard" className="ulink">Studio CRM</a></li>
+                <li><a href="/auth/login?redirect=/portal/dashboard" className="ulink">Client Portal</a></li>
               </ul>
             </div>
 
