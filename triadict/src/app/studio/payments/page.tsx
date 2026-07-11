@@ -80,6 +80,17 @@ export default function PaymentsPage() {
         </div>
       </div>
 
+      <div className="bg-forest/5 border border-forest/20 rounded-xl p-4">
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-forest" />
+          <p className="text-sm text-forest font-sans font-medium">Payment Gate Reminder</p>
+        </div>
+        <p className="text-xs text-mute mt-1">
+          After recording a payment, remember to update the deal&apos;s payment gate status.
+          Go to Pipeline → open the deal → Overview → Payment Gate section.
+        </p>
+      </div>
+
       {payments.length === 0 ? (
         <EmptyState
           icon={DollarSign}

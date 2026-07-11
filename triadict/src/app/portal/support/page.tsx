@@ -63,6 +63,22 @@ export default function PortalSupportPage() {
         </button>
       </div>
 
+      <div className="bg-paper border border-hairline rounded-xl p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-sans font-medium text-ink">Support Capacity</h3>
+            <p className="text-xs text-mute mt-0.5">Included with your retainer plan</p>
+          </div>
+          <div className="text-right">
+            <p className="text-lg font-display text-ink">5 / 10</p>
+            <p className="text-xs text-mute">tickets this month</p>
+          </div>
+        </div>
+        <div className="mt-3 h-1.5 bg-hairline rounded-full overflow-hidden">
+          <div className="h-full bg-forest rounded-full" style={{ width: "50%" }} />
+        </div>
+      </div>
+
       {tickets.length === 0 ? (
         <EmptyState
           icon={HeadphonesIcon}

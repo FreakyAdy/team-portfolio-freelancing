@@ -18,7 +18,7 @@ import { LoadingState } from "@/components/ui/LoadingState"
 import { EmptyState } from "@/components/ui/EmptyState"
 
 export default function PortalDashboard() {
-  const [project, setProject] = useState<{ name: string; phase: string; status: string; target_launch_date: string | null } | null>(null)
+  const [project, setProject] = useState<{ name: string; phase: string; status: string; target_launch_date: string | null; contract_value_cents: number } | null>(null)
   const [invoices, setInvoices] = useState<{ id: string; number: string; amount_cents: number; status: string; due_date: string | null }[]>([])
   const [taskSummary, setTaskSummary] = useState({ total: 0, completed: 0 })
   const [recentActivity, setRecentActivity] = useState<{ name: string; created_at: string }[]>([])
@@ -88,6 +88,25 @@ export default function PortalDashboard() {
           <p className="text-mute text-sm">No active projects yet. Your studio will add you to a project soon.</p>
         </div>
       )}
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-paper border border-hairline rounded-xl p-4">
+          <p className="text-xs text-mute font-sans mb-1">Project Fees</p>
+          <p className="text-2xl font-display text-ink">${((project?.contract_value_cents || 0) / 100).toLocaleString()}</p>
+        </div>
+        <div className="bg-paper border border-hairline rounded-xl p-4">
+          <p className="text-xs text-mute font-sans mb-1">Total Paid</p>
+          <p className="text-2xl font-display text-forest">
+            ${(invoices.filter(i => i.status === "paid").reduce((sum, i) => sum + i.amount_cents, 0) / 100).toLocaleString()}
+          </p>
+        </div>
+        <div className="bg-paper border border-hairline rounded-xl p-4">
+          <p className="text-xs text-mute font-sans mb-1">Outstanding</p>
+          <p className="text-2xl font-display text-coral">
+            ${(invoices.filter(i => i.status !== "paid").reduce((sum, i) => sum + i.amount_cents, 0) / 100).toLocaleString()}
+          </p>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Link href="/portal/invoices" className="bg-paper border border-hairline rounded-xl p-5 hover:border-coral/30 transition-colors group">

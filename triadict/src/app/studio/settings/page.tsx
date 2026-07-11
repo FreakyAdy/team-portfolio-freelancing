@@ -144,6 +144,27 @@ export default function SettingsPage() {
             </div>
             <button className="px-3 py-1.5 text-xs border border-hairline rounded-lg hover:bg-paper2 transition-colors">Connect</button>
           </div>
+          <div className="flex items-center justify-between max-w-md py-3 border-b border-hairline">
+            <div>
+              <div className="text-sm font-medium">Google Search Console</div>
+              <div className="text-xs text-mute">Monitor search performance & indexing</div>
+            </div>
+            <button className="px-3 py-1.5 text-xs border border-hairline rounded-lg hover:bg-paper2 transition-colors">Connect</button>
+          </div>
+          <div className="flex items-center justify-between max-w-md py-3 border-b border-hairline">
+            <div>
+              <div className="text-sm font-medium">Uptime Monitor</div>
+              <div className="text-xs text-mute">Get alerts when client sites go down</div>
+            </div>
+            <button className="px-3 py-1.5 text-xs border border-hairline rounded-lg hover:bg-paper2 transition-colors">Configure</button>
+          </div>
+          <div className="flex items-center justify-between max-w-md py-3 border-b border-hairline">
+            <div>
+              <div className="text-sm font-medium">Lead-Gen Form</div>
+              <div className="text-xs text-mute">Embed contact forms that push to Pipeline</div>
+            </div>
+            <button className="px-3 py-1.5 text-xs border border-hairline rounded-lg hover:bg-paper2 transition-colors">Set Up</button>
+          </div>
         </div>
       ),
     },

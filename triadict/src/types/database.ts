@@ -2,7 +2,7 @@
 
 export type OrganizationType = 'studio' | 'client'
 export type PersonRole = 'admin' | 'engineer' | 'designer' | 'strategist' | 'client_owner' | 'client_stakeholder'
-export type DealStage = 'researching' | 'qualified' | 'outreach_ready' | 'contacted' | 'replied' | 'positive_reply' | 'discovery_scheduled' | 'discovery_complete' | 'scoping' | 'proposal_sent' | 'negotiation' | 'verbal_yes' | 'won' | 'lost' | 'nurture'
+export type DealStage = 'lead' | 'researching' | 'outreach_ready' | 'engaged' | 'discovery_scheduled' | 'discovery_completed' | 'scoping' | 'proposal_sent' | 'negotiation' | 'agreement_sent' | 'awaiting_initial_payment' | 'won_kickoff' | 'won' | 'lost' | 'cancelled'
 export type LostReason = 'no_budget' | 'no_response' | 'chose_competitor' | 'timing' | 'poor_fit' | 'project_cancelled' | 'price' | 'other'
 export type DiscoveryNextStep = 'proceed_to_proposal' | 'paid_discovery' | 'more_information' | 'nurture' | 'reject'
 export type TaskStatus = 'backlog' | 'ready' | 'in_progress' | 'internal_review' | 'client_review' | 'blocked' | 'done'
@@ -11,7 +11,7 @@ export type MeetingType = 'discovery' | 'scope' | 'proposal' | 'kickoff' | 'proj
 export type ClientStatus = 'active' | 'onboarding' | 'at_risk' | 'churned'
 export type ClientHealth = 'green' | 'yellow' | 'red'
 export type HealthStatus = 'green' | 'yellow' | 'red'
-export type ProjectStatus = 'onboarding' | 'active' | 'on_hold' | 'completed' | 'cancelled'
+export type ProjectStatus = 'onboarding' | 'active' | 'internal_qa' | 'client_review' | 'on_hold' | 'post_launch_monitoring' | 'completed' | 'cancelled'
 export type ProjectPhase = 'discovery' | 'design' | 'build' | 'qa' | 'launch' | 'handover'
 export type ApprovalType = 'design' | 'content' | 'scope' | 'final' | 'launch'
 export type ApprovalStatus = 'pending' | 'approved' | 'rejected' | 'changes_requested'
@@ -24,6 +24,9 @@ export type FeedbackStatus = 'open' | 'acknowledged' | 'in_progress' | 'resolved
 export type TicketCategory = 'bug' | 'content_change' | 'support' | 'enhancement' | 'new_scope' | 'emergency'
 export type TicketPriority = 'low' | 'medium' | 'high' | 'urgent'
 export type TicketStatus = 'submitted' | 'triaged' | 'in_progress' | 'resolved' | 'closed'
+export type ServiceCategory = 'websites' | 'monthly_optimization' | 'ai_agents' | 'ai_email' | 'lead_response' | 'crm_automation' | 'whatsapp_sms' | 'appointment_systems' | 'ai_knowledge' | 'custom_dashboards'
+export type TechnicalRisk = 'low' | 'medium' | 'high'
+export type SeoRisk = 'low' | 'medium' | 'high'
 
 export interface Organization {
   id: string
@@ -136,6 +139,14 @@ export interface Deal {
   agreed_price_cents: number | null
   payment_structure: string | null
 
+  // Service & risk classification
+  service_category: ServiceCategory | null
+  technical_risk: TechnicalRisk | null
+  seo_risk: SeoRisk | null
+
+  // Payment gate
+  payment_gate_status: PaymentGateStatus | null
+
   created_at: string
   updated_at: string
   assignee?: Person
@@ -157,6 +168,47 @@ export interface Workstream {
   sort_order: number
   created_at: string
   updated_at: string
+}
+
+export interface PaymentGateStatus {
+  scope_agreed: boolean
+  agreement_signed: boolean
+  sow_approved: boolean
+  initial_payment_received: boolean
+  scope_agreed_at: string | null
+  agreement_signed_at: string | null
+  sow_approved_at: string | null
+  initial_payment_received_at: string | null
+}
+
+export interface ClientWebsite {
+  id: string
+  client_id: string
+  domain: string
+  approx_domain_age: string | null
+  current_cms: string | null
+  hosting: string | null
+  seo_sensitivity: SeoRisk
+  notes: string | null
+  created_at: string
+}
+
+export interface PaymentSchedule {
+  id: string
+  deal_id: string | null
+  project_id: string | null
+  split_type: '50_50' | '40_30_30' | 'custom'
+  installments: PaymentScheduleInstallment[]
+  created_at: string
+}
+
+export interface PaymentScheduleInstallment {
+  label: string
+  percentage: number | null
+  amount_cents: number | null
+  trigger_condition: string
+  linked_invoice_id: string | null
+  status: 'pending' | 'invoiced' | 'paid'
 }
 
 export interface Task {
@@ -219,11 +271,15 @@ export interface Client {
   health: ClientHealth
   expansion_potential: string | null
   notes: string | null
+  service_interest: ServiceCategory[]
+  lifetime_value_one_time: number
+  lifetime_value_recurring: number
   created_at: string
   updated_at: string
   organization?: Organization
   primary_contact?: Person
   account_owner?: Person
+  websites?: ClientWebsite[]
 }
 
 export interface Lead {
@@ -270,6 +326,7 @@ export interface Project {
   target_launch_date: string | null
   actual_launch_date: string | null
   project_manager_id: string | null
+  service_category: ServiceCategory | null
   created_at: string
   updated_at: string
   // Joined data
@@ -278,6 +335,7 @@ export interface Project {
   phases?: ProjectPhaseItem[]
   deal?: Deal
   tasks?: Task[]
+  approvals?: Approval[]
 }
 
 export interface ProjectPhaseItem {
@@ -428,6 +486,7 @@ export interface Invoice {
   stripe_invoice_id: string | null
   line_items: InvoiceLineItem[]
   sent_at: string | null
+  service_category: ServiceCategory | null
   created_at: string
 }
 
@@ -527,8 +586,18 @@ export interface Template {
   merge_fields: string[]
   locked_sections: string[]
   is_active: boolean
+  attachments: TemplateAttachment[]
   created_by: string | null
   created_at: string
+}
+
+export interface TemplateAttachment {
+  id: string
+  file_type: 'image' | 'pdf'
+  file_name: string
+  file_size: number
+  local_path: string
+  uploaded_at: string
 }
 
 export interface KnowledgeArticle {
@@ -626,6 +695,9 @@ export interface CreateDealInput {
   primary_contact_id?: string
   expected_close_date?: string
   assigned_to?: string
+  service_category?: ServiceCategory
+  technical_risk?: TechnicalRisk
+  seo_risk?: SeoRisk
 }
 
 export interface UpdateDealStageInput {
@@ -708,6 +780,10 @@ export interface UpdateDealInput {
   proposed_price_cents?: number
   agreed_price_cents?: number
   payment_structure?: string
+  service_category?: ServiceCategory
+  technical_risk?: TechnicalRisk
+  seo_risk?: SeoRisk
+  payment_gate_status?: PaymentGateStatus
 }
 
 export interface CreateProjectInput {
@@ -777,6 +853,7 @@ export interface CreateInvoiceInput {
   amount_cents: number
   due_date?: string
   line_items: InvoiceLineItem[]
+  service_category?: ServiceCategory
 }
 
 export interface CreatePaymentInput {
@@ -794,6 +871,7 @@ export interface CreateClientInput {
   client_since?: string
   communication_preference?: string
   notes?: string
+  service_interest?: ServiceCategory[]
 }
 
 export interface CreateTicketInput {

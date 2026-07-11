@@ -16,7 +16,7 @@ import { Modal } from "@/components/ui/Modal"
 import { LoadingState } from "@/components/ui/LoadingState"
 import { TextField } from "@/components/ui/TextField"
 import { SelectField } from "@/components/ui/SelectField"
-import type { Client, ClientStatus, ClientHealth, Organization as OrgType, Person, Project, Invoice, Payment } from "@/types/database"
+import type { Client, ClientStatus, ClientHealth, Organization as OrgType, Person, Project, Invoice, Payment, ClientWebsite } from "@/types/database"
 
 const tabs = [
   { id: "overview", label: "Overview", icon: Building2 },
@@ -71,6 +71,7 @@ export default function ClientDetailPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [invoices, setInvoices] = useState<(Invoice & { client?: { name: string } })[]>([])
   const [payments, setPayments] = useState<Payment[]>([])
+  const [websites, setWebsites] = useState<ClientWebsite[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("overview")
   const [editField, setEditField] = useState<string | null>(null)
@@ -96,6 +97,8 @@ export default function ClientDetailPage() {
     setProjects(projectsData.filter(p => p.client_org_id === orgId))
     setInvoices(invoicesData)
     setPayments(paymentsData)
+    // Websites would come from a DB query; for now, use empty array
+    setWebsites([])
     setLoading(false)
   }, [clientId])
 
@@ -248,7 +251,7 @@ export default function ClientDetailPage() {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-paper border border-hairline rounded-xl p-4">
               <p className="text-xs text-mute font-sans mb-1">Total Invoiced</p>
               <p className="text-2xl font-display text-ink">${(totalInvoiced / 100).toLocaleString()}</p>
@@ -263,6 +266,38 @@ export default function ClientDetailPage() {
                 ${(totalOutstanding / 100).toLocaleString()}
               </p>
             </div>
+            <div className="bg-paper border border-hairline rounded-xl p-4">
+              <p className="text-xs text-mute font-sans mb-1">LTV (Actual)</p>
+              <p className="text-2xl font-display text-ink">${(totalPaid / 100).toLocaleString()}</p>
+              <p className="text-[10px] text-mute">Project fees + retainers</p>
+            </div>
+          </div>
+
+          <div className="bg-paper border border-hairline rounded-xl p-6">
+            <h2 className="font-display text-lg tracking-tight text-ink mb-4">Websites & Digital Assets</h2>
+            {websites.length > 0 ? (
+              <div className="space-y-3">
+                {websites.map(site => (
+                  <div key={site.id} className="flex items-center justify-between p-3 bg-paper2 rounded-lg">
+                    <div>
+                      <p className="text-sm font-medium text-ink">{site.domain}</p>
+                      <p className="text-xs text-mute">
+                        {site.current_cms || "—"} · {site.hosting || "—"}
+                      </p>
+                    </div>
+                    <span className={`text-xs px-2 py-0.5 rounded ${
+                      ["high", "very_high", "rebuild_with_migration"].includes(site.seo_sensitivity as string) ? "bg-coral/10 text-coral" :
+                      site.seo_sensitivity === "medium" ? "bg-gold/10 text-gold" :
+                      "bg-forest/10 text-forest"
+                    }`}>
+                      {site.seo_sensitivity?.replace(/_/g, " ") || "—"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-mute">No websites recorded yet.</p>
+            )}
           </div>
         </div>
       )}

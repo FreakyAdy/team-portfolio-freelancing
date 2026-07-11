@@ -28,16 +28,21 @@ const phases = [
   { id: "discovery", label: "Discovery", color: "bg-inkblue/10 text-inkblue" },
   { id: "design", label: "Design", color: "bg-coral/10 text-coral" },
   { id: "build", label: "Build", color: "bg-gold/10 text-gold" },
-  { id: "qa", label: "QA", color: "bg-forest/10 text-forest" },
-  { id: "launch", label: "Launch", color: "bg-mute/10 text-mute" }
+  { id: "internal_qa", label: "Internal QA", color: "bg-forest/10 text-forest" },
+  { id: "client_review", label: "Client Review", color: "bg-inkblue/10 text-inkblue" },
+  { id: "launch", label: "Launch", color: "bg-mute/10 text-mute" },
+  { id: "post_launch_monitoring", label: "Post-Launch", color: "bg-mute/10 text-mute" },
 ]
 
 const statusColors: Record<string, string> = {
   onboarding: "bg-inkblue/10 text-inkblue",
   active: "bg-forest/10 text-forest",
+  internal_qa: "bg-forest/10 text-forest",
+  client_review: "bg-inkblue/10 text-inkblue",
   on_hold: "bg-gold/10 text-gold",
+  post_launch_monitoring: "bg-mute/10 text-mute",
   completed: "bg-mute/10 text-mute",
-  cancelled: "bg-red-500/10 text-red-500"
+  cancelled: "bg-red-500/10 text-red-500",
 }
 
 export default function ProjectsPage() {

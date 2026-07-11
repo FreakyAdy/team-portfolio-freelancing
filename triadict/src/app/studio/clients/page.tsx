@@ -19,10 +19,17 @@ export default function ClientsPage() {
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [teamOptions, setTeamOptions] = useState<{ value: string; label: string }[]>([])
-  const [step, setStep] = useState<"company" | "contact">("company")
+  const [step, setStep] = useState<"company" | "contact" | "digital_assets">("company")
 
   const [companyForm, setCompanyForm] = useState({ name: "", website: "", country: "", city: "" })
   const [contactForm, setContactForm] = useState({ full_name: "", email: "" })
+  const [digitalAssetsForm, setDigitalAssetsForm] = useState({
+    domains: "" as string,
+    current_cms: "",
+    hosting: "",
+    seo_sensitivity: "" as "" | "greenfield" | "low" | "medium" | "high" | "very_high" | "rebuild_with_migration",
+    service_interests: [] as string[],
+  })
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -51,6 +58,7 @@ export default function ClientsPage() {
     setShowCreateModal(false)
     setCompanyForm({ name: "", website: "", country: "", city: "" })
     setContactForm({ full_name: "", email: "" })
+    setDigitalAssetsForm({ domains: "", current_cms: "", hosting: "", seo_sensitivity: "", service_interests: [] })
     setStep("company")
     loadData()
   }
@@ -155,6 +163,13 @@ export default function ClientsPage() {
             >
               2. Contact
             </button>
+            <div className="w-6 h-px bg-hairline" />
+            <button
+              onClick={() => setStep("digital_assets")}
+              className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${step === "digital_assets" ? "bg-ink text-paper" : "bg-paper2 text-mute"}`}
+            >
+              3. Digital Assets
+            </button>
           </div>
 
           {step === "company" && (
@@ -180,6 +195,61 @@ export default function ClientsPage() {
               <TextField label="Email" value={contactForm.email} onChange={(v) => setContactForm({ ...contactForm, email: v })} type="email" />
               <div className="flex justify-between pt-2">
                 <button onClick={() => setStep("company")} className="px-4 py-2 text-sm text-mute hover:text-ink transition-colors">Back</button>
+                <button onClick={() => setStep("digital_assets")} className="px-4 py-2 text-sm bg-ink text-paper rounded-lg hover:bg-charcoal transition-colors">
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+
+          {step === "digital_assets" && (
+            <div className="space-y-4">
+              <p className="text-xs text-mute">Optional: Capture current digital assets and services they need.</p>
+              <TextField label="Current Website Domains" value={digitalAssetsForm.domains} onChange={(v) => setDigitalAssetsForm({ ...digitalAssetsForm, domains: v })} placeholder="e.g. example.com, example2.com" />
+              <div className="grid grid-cols-2 gap-4">
+                <TextField label="Current CMS" value={digitalAssetsForm.current_cms} onChange={(v) => setDigitalAssetsForm({ ...digitalAssetsForm, current_cms: v })} placeholder="e.g. WordPress, Squarespace" />
+                <TextField label="Hosting" value={digitalAssetsForm.hosting} onChange={(v) => setDigitalAssetsForm({ ...digitalAssetsForm, hosting: v })} placeholder="e.g. GoDaddy, AWS" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5">SEO Sensitivity</label>
+                <select
+                  value={digitalAssetsForm.seo_sensitivity}
+                  onChange={(e) => setDigitalAssetsForm({ ...digitalAssetsForm, seo_sensitivity: e.target.value as typeof digitalAssetsForm.seo_sensitivity })}
+                  className="w-full h-10 px-3 bg-paper border border-hairline rounded-lg text-sm focus:outline-none focus:border-coral transition-colors"
+                >
+                  <option value="">Select (optional)</option>
+                  <option value="greenfield">Greenfield — No existing SEO</option>
+                  <option value="low">Low — Minimal organic traffic</option>
+                  <option value="medium">Medium — Some organic traffic to preserve</option>
+                  <option value="high">High — Significant organic traffic</option>
+                  <option value="very_high">Very High — Primary lead channel</option>
+                  <option value="rebuild_with_migration">Rebuild with Migration Required</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Services Interested In</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {["Websites", "Monthly Optimization", "AI Agents", "AI Email", "Lead Response", "CRM Automation", "WhatsApp/SMS", "Appointment Systems", "AI Knowledge", "Custom Dashboards"].map(service => (
+                    <label key={service} className="flex items-center gap-2 p-2 border border-hairline rounded-lg hover:border-coral/30 transition-colors cursor-pointer text-xs">
+                      <input
+                        type="checkbox"
+                        checked={digitalAssetsForm.service_interests.includes(service)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setDigitalAssetsForm({ ...digitalAssetsForm, service_interests: [...digitalAssetsForm.service_interests, service] })
+                          } else {
+                            setDigitalAssetsForm({ ...digitalAssetsForm, service_interests: digitalAssetsForm.service_interests.filter(s => s !== service) })
+                          }
+                        }}
+                        className="w-3 h-3 accent-coral"
+                      />
+                      {service}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="flex justify-between pt-2">
+                <button onClick={() => setStep("contact")} className="px-4 py-2 text-sm text-mute hover:text-ink transition-colors">Back</button>
                 <button onClick={handleCreate} disabled={!companyForm.name} className="px-4 py-2 text-sm bg-ink text-paper rounded-lg hover:bg-charcoal transition-colors disabled:opacity-50">
                   Create Client
                 </button>

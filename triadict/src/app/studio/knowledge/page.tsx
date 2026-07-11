@@ -5,7 +5,7 @@ import {
   Plus, Search, MoreHorizontal, BookOpen, FileText, Lightbulb,
   AlertCircle, ArrowUpRight, Tag, Pencil, Trash2
 } from "lucide-react"
-import { listArticles, createArticle, updateArticle, deleteArticle, getArticleCategories } from "@/lib/db/knowledge"
+import { listArticles, createArticle, updateArticle, deleteArticle, getArticleCategories, seedArticles } from "@/lib/db/knowledge"
 import type { KnowledgeArticle } from "@/types/database"
 import { Modal } from "@/components/ui/Modal"
 import { TextField } from "@/components/ui/TextField"
@@ -45,6 +45,7 @@ export default function KnowledgePage() {
 
   const loadData = useCallback(async () => {
     setLoading(true)
+    await seedArticles()
     const [arts, cats] = await Promise.all([
       listArticles({ search: searchQuery || undefined, category: activeCategory === "all" ? undefined : activeCategory }),
       getArticleCategories(),

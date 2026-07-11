@@ -19,6 +19,7 @@ import { listProjects } from "@/lib/db/projects"
 import { listTasks } from "@/lib/db/tasks"
 import { listEvents } from "@/lib/db/events"
 import { LoadingState } from "@/components/ui/LoadingState"
+import type { Deal } from "@/types/database"
 
 interface Metric {
   label: string
@@ -31,7 +32,8 @@ interface Metric {
 
 export default function StudioDashboard() {
   const [metrics, setMetrics] = useState<Metric[]>([])
-  const [recentDeals, setRecentDeals] = useState<{ id: string; name: string; stage: string; value_cents: number }[]>([])
+  const [recentDeals, setRecentDeals] = useState<{ id: string; name: string; stage: string; value_cents: number; payment_gate_status: Deal["payment_gate_status"] }[]>([])
+  const [allDeals, setAllDeals] = useState<Deal[]>([])
   const [activeProjects, setActiveProjects] = useState<{ id: string; name: string; phase: string; progress: number }[]>([])
   const [upcomingTasks, setUpcomingTasks] = useState<{ id: string; title: string; due_date: string | null; priority: string }[]>([])
   const [recentActivity, setRecentActivity] = useState<{ name: string; created_at: string }[]>([])
@@ -49,11 +51,13 @@ export default function StudioDashboard() {
         listEvents({ limit: 10 }),
       ])
 
+      const mrr = (dash as Record<string, unknown>).monthly_recurring_cents ? `$${((dash as Record<string, number>).monthly_recurring_cents / 100).toLocaleString()}` : "$0"
+
       setMetrics([
         {
-          label: "Pipeline Value",
-          value: `$${(dash.pipeline_value_cents / 100).toLocaleString()}`,
-          change: `${dash.pipeline_count} deals`,
+          label: "Active Deals",
+          value: `${dash.pipeline_count}`,
+          change: `${dash.active_projects} projects`,
           trend: "up",
           icon: TrendingUp,
           color: "text-coral"
@@ -67,19 +71,19 @@ export default function StudioDashboard() {
           color: "text-forest"
         },
         {
-          label: "Outstanding",
-          value: `$${(dash.outstanding_cents / 100).toLocaleString()}`,
-          change: `${dash.overdue_invoices} overdue`,
+          label: "Overdue Invoices",
+          value: `${dash.overdue_invoices}`,
+          change: `$${(dash.outstanding_cents / 100).toLocaleString()} outstanding`,
           trend: "warning",
-          icon: DollarSign,
+          icon: AlertCircle,
           color: "text-gold"
         },
         {
-          label: "Collected",
-          value: `$${(dash.total_collected_cents / 100).toLocaleString()}`,
+          label: "MRR",
+          value: mrr,
           change: `${dash.win_rate}% win rate`,
           trend: "up",
-          icon: FileText,
+          icon: DollarSign,
           color: "text-inkblue"
         }
       ])
@@ -88,7 +92,9 @@ export default function StudioDashboard() {
         id: d.id, name: d.name,
         stage: d.stage,
         value_cents: d.value_cents,
+        payment_gate_status: d.payment_gate_status,
       })))
+      setAllDeals(deals)
 
       setActiveProjects(projects.slice(0, 5).map(p => ({
         id: p.id, name: p.name,
@@ -99,7 +105,7 @@ export default function StudioDashboard() {
       const now = new Date()
       const overdue = deals.filter(d =>
         d.next_action_at && new Date(d.next_action_at) < now &&
-        !["won", "lost", "nurture"].includes(d.stage)
+        !["won_kickoff", "won", "lost", "cancelled"].includes(d.stage)
       ).slice(0, 5)
       setAttentionDeals(overdue)
 
@@ -133,19 +139,21 @@ export default function StudioDashboard() {
 
   const getStageColor = (stage: string) => {
     const colors: Record<string, string> = {
+      lead: "bg-mute/10 text-mute",
       researching: "bg-mute/10 text-mute",
-      qualified: "bg-mute/10 text-mute",
       outreach_ready: "bg-inkblue/10 text-inkblue",
-      contacted: "bg-inkblue/10 text-inkblue",
-      replied: "bg-gold/10 text-gold",
-      positive_reply: "bg-gold/10 text-gold",
-      discovery_scheduled: "bg-inkblue/10 text-inkblue",
+      engaged: "bg-inkblue/10 text-inkblue",
+      discovery_scheduled: "bg-gold/10 text-gold",
+      discovery_completed: "bg-gold/10 text-gold",
       scoping: "bg-coral/10 text-coral",
       proposal_sent: "bg-coral/10 text-coral",
       negotiation: "bg-coral/10 text-coral",
-      verbal_yes: "bg-forest/10 text-forest",
+      agreement_sent: "bg-forest/10 text-forest",
+      awaiting_initial_payment: "bg-gold/10 text-gold",
+      won_kickoff: "bg-forest/10 text-forest",
       won: "bg-forest/10 text-forest",
       lost: "bg-red-500/10 text-red-500",
+      cancelled: "bg-mute/10 text-mute",
     }
     return colors[stage] || "bg-mute/10 text-mute"
   }
@@ -155,7 +163,9 @@ export default function StudioDashboard() {
       discovery: "bg-inkblue/10 text-inkblue",
       design: "bg-coral/10 text-coral",
       build: "bg-gold/10 text-gold",
-      qa: "bg-forest/10 text-forest",
+      internal_qa: "bg-forest/10 text-forest",
+      client_review: "bg-inkblue/10 text-inkblue",
+      post_launch_monitoring: "bg-mute/10 text-mute",
       launch: "bg-mute/10 text-mute"
     }
     return colors[phase] || "bg-mute/10 text-mute"
@@ -182,6 +192,42 @@ export default function StudioDashboard() {
                 </span>
               </Link>
             ))}
+          </div>
+        </div>
+      )}
+
+      {allDeals.filter(d => {
+        const gate = d.payment_gate_status
+        return gate && (
+          !gate.scope_agreed || !gate.agreement_signed || !gate.sow_approved || !gate.initial_payment_received
+        ) && !["won_kickoff", "won", "lost", "cancelled"].includes(d.stage)
+      }).length > 0 && (
+        <div className="bg-gold/5 border border-gold/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertCircle className="w-4 h-4 text-gold" />
+            <h2 className="font-sans font-medium text-sm text-gold">Payment Gate Blockers</h2>
+          </div>
+          <div className="space-y-2">
+            {allDeals.filter(d => {
+              const gate = d.payment_gate_status
+              return gate && (
+                !gate.scope_agreed || !gate.agreement_signed || !gate.sow_approved || !gate.initial_payment_received
+              ) && !["won_kickoff", "won", "lost", "cancelled"].includes(d.stage)
+            }).slice(0, 5).map(deal => {
+              const gate = deal.payment_gate_status!
+              const blockers: string[] = []
+              if (!gate.scope_agreed) blockers.push("Scope")
+              if (!gate.agreement_signed) blockers.push("Agreement")
+              if (!gate.sow_approved) blockers.push("SOW")
+              if (!gate.initial_payment_received) blockers.push("Payment")
+              return (
+                <Link key={deal.id} href={`/studio/deals/${deal.id}`}
+                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-gold/5 transition-colors group">
+                  <span className="text-sm text-ink group-hover:text-gold transition-colors">{deal.name}</span>
+                  <span className="text-xs text-mute">Missing: {blockers.join(", ")}</span>
+                </Link>
+              )
+            })}
           </div>
         </div>
       )}

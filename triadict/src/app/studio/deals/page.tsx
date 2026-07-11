@@ -22,7 +22,7 @@ import { EmptyState } from "@/components/ui/EmptyState"
 import { LoadingState } from "@/components/ui/LoadingState"
 import { TextField } from "@/components/ui/TextField"
 import { SelectField } from "@/components/ui/SelectField"
-import type { Deal, CreateDealInput } from "@/types/database"
+import type { Deal, CreateDealInput, ServiceCategory, TechnicalRisk, SeoRisk } from "@/types/database"
 
 const lostReasons = [
   { value: "no_budget", label: "No Budget" },
@@ -37,34 +37,35 @@ const lostReasons = [
 
 const savedViews = [
   { id: "all", label: "All Deals", filter: "all" },
-  { id: "active", label: "Active Pipeline", filter: "all", hide: ["won", "lost", "nurture"] },
+  { id: "active", label: "Active Pipeline", filter: "all", hide: ["won", "lost", "cancelled"] },
   { id: "follow_up_today", label: "Follow Up Today", filter: "all" },
   { id: "overdue", label: "Overdue Follow Ups", filter: "all" },
-  { id: "positive_replies", label: "Positive Replies", filter: "positive_reply" },
+  { id: "research", label: "Research", filter: "researching" },
+  { id: "outreach", label: "Outreach", filter: "outreach_ready" },
   { id: "discovery", label: "Discovery", filter: "discovery_scheduled" },
   { id: "proposals", label: "Proposals Outstanding", filter: "proposal_sent" },
   { id: "negotiations", label: "Negotiations", filter: "negotiation" },
-  { id: "verbal_yes", label: "Verbal Yes", filter: "verbal_yes" },
+  { id: "payment_pending", label: "Awaiting Payment", filter: "awaiting_initial_payment" },
   { id: "won", label: "Won", filter: "won" },
   { id: "lost", label: "Lost", filter: "lost" },
-  { id: "nurture", label: "Nurture", filter: "nurture" },
+  { id: "cancelled", label: "Cancelled", filter: "cancelled" },
 ]
 
 const stages = [
+  { id: "lead", label: "Lead", color: "bg-mute/10", textColor: "text-mute" },
   { id: "researching", label: "Researching", color: "bg-mute/10", textColor: "text-mute" },
-  { id: "qualified", label: "Qualified", color: "bg-mute/10", textColor: "text-mute" },
-  { id: "outreach_ready", label: "Outreach Ready", color: "bg-inkblue/10", textColor: "text-inkblue" },
-  { id: "contacted", label: "Contacted", color: "bg-inkblue/10", textColor: "text-inkblue" },
-  { id: "replied", label: "Replied", color: "bg-gold/10", textColor: "text-gold" },
-  { id: "positive_reply", label: "Positive Reply", color: "bg-gold/10", textColor: "text-gold" },
-  { id: "discovery_scheduled", label: "Discovery", color: "bg-gold/10", textColor: "text-gold" },
+  { id: "outreach_ready", label: "Outreach Sent", color: "bg-inkblue/10", textColor: "text-inkblue" },
+  { id: "engaged", label: "Engaged", color: "bg-inkblue/10", textColor: "text-inkblue" },
+  { id: "discovery_scheduled", label: "Discovery Scheduled", color: "bg-gold/10", textColor: "text-gold" },
+  { id: "discovery_completed", label: "Discovery Completed", color: "bg-gold/10", textColor: "text-gold" },
   { id: "scoping", label: "Scoping", color: "bg-coral/10", textColor: "text-coral" },
-  { id: "proposal_sent", label: "Proposal", color: "bg-coral/10", textColor: "text-coral" },
+  { id: "proposal_sent", label: "Proposal Sent", color: "bg-coral/10", textColor: "text-coral" },
   { id: "negotiation", label: "Negotiation", color: "bg-coral/10", textColor: "text-coral" },
-  { id: "verbal_yes", label: "Verbal Yes", color: "bg-forest/10", textColor: "text-forest" },
-  { id: "won", label: "Won", color: "bg-forest/10", textColor: "text-forest" },
+  { id: "agreement_sent", label: "Agreement Sent", color: "bg-forest/10", textColor: "text-forest" },
+  { id: "awaiting_initial_payment", label: "Awaiting Payment", color: "bg-gold/10", textColor: "text-gold" },
+  { id: "won_kickoff", label: "Won — Kickoff", color: "bg-forest/10", textColor: "text-forest" },
   { id: "lost", label: "Lost", color: "bg-red-500/10", textColor: "text-red-500" },
-  { id: "nurture", label: "Nurture", color: "bg-mute/10", textColor: "text-mute" },
+  { id: "cancelled", label: "Cancelled", color: "bg-mute/10", textColor: "text-mute" },
 ]
 
 export default function DealsPage() {
@@ -127,12 +128,12 @@ export default function DealsPage() {
       return
     }
     setShowCreateModal(false)
-    setFormData({ name: "", value_cents: 0, probability: 50, source: "", source_detail: "", how_it_started: "", assigned_to: "", notes: "" })
+    setFormData({ name: "", value_cents: 0, probability: 50, source: "", source_detail: "", how_it_started: "", assigned_to: "", notes: "", service_category: undefined, technical_risk: undefined, seo_risk: undefined })
     loadData()
   }
 
   const handleStageChange = async (dealId: string, newStage: string) => {
-    if (newStage === "won") {
+    if (newStage === "won_kickoff") {
       const deal = deals.find(d => d.id === dealId)
       if (deal) {
         setConvertDeal(deal)
@@ -141,7 +142,7 @@ export default function DealsPage() {
       }
       return
     }
-    if (newStage === "lost") {
+    if (newStage === "lost" || newStage === "cancelled") {
       setLostDealId(dealId)
       setLostReason("")
       setLostNotes("")
@@ -183,7 +184,7 @@ export default function DealsPage() {
   }
 
   const handleMoveToStage = async (dealId: string, newStage: string) => {
-    if (newStage === "won") {
+    if (newStage === "won_kickoff") {
       const deal = deals.find(d => d.id === dealId)
       if (deal) {
         setConvertDeal(deal)
@@ -192,7 +193,7 @@ export default function DealsPage() {
       }
       return
     }
-    if (newStage === "lost") {
+    if (newStage === "lost" || newStage === "cancelled") {
       setLostDealId(dealId)
       setLostReason("")
       setLostNotes("")
@@ -547,6 +548,58 @@ export default function DealsPage() {
           </div>
           <TextField label="Source" value={formData.source || ""} onChange={(v) => setFormData({ ...formData, source: v })} placeholder="e.g. Cold email, Referral, Upwork" />
           <TextField label="Source Detail" value={formData.source_detail || ""} onChange={(v) => setFormData({ ...formData, source_detail: v })} placeholder="e.g. Deep Research + Custom Demo" />
+          <div>
+            <label className="block text-sm font-medium mb-1.5">Service Category</label>
+            <select
+              value={formData.service_category || ""}
+              onChange={(e) => setFormData({ ...formData, service_category: e.target.value as ServiceCategory || undefined })}
+              className="w-full h-10 px-3 bg-paper border border-hairline rounded-lg text-sm focus:outline-none focus:border-coral transition-colors"
+            >
+              <option value="">Select category (optional)</option>
+              <option value="websites">Websites</option>
+              <option value="monthly_optimization">Monthly Optimization</option>
+              <option value="ai_agents">AI Agents</option>
+              <option value="ai_email">AI Email</option>
+              <option value="lead_response">Lead Response</option>
+              <option value="crm_automation">CRM Automation</option>
+              <option value="whatsapp_sms">WhatsApp/SMS</option>
+              <option value="appointment_systems">Appointment Systems</option>
+              <option value="ai_knowledge">AI Knowledge</option>
+              <option value="custom_dashboards">Custom Dashboards</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1.5">Technical Risk</label>
+            <select
+              value={formData.technical_risk || ""}
+              onChange={(e) => setFormData({ ...formData, technical_risk: e.target.value as TechnicalRisk || undefined })}
+              className="w-full h-10 px-3 bg-paper border border-hairline rounded-lg text-sm focus:outline-none focus:border-coral transition-colors"
+            >
+              <option value="">Select risk (optional)</option>
+              <option value="clean_slate">Clean Slate</option>
+              <option value="mild_legacy">Mild Legacy</option>
+              <option value="deep_legacy">Deep Legacy</option>
+              <option value="cms_only">CMS Only</option>
+              <option value="platform_lock">Platform Lock</option>
+              <option value="migration_required">Migration Required</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1.5">SEO Risk</label>
+            <select
+              value={formData.seo_risk || ""}
+              onChange={(e) => setFormData({ ...formData, seo_risk: e.target.value as SeoRisk || undefined })}
+              className="w-full h-10 px-3 bg-paper border border-hairline rounded-lg text-sm focus:outline-none focus:border-coral transition-colors"
+            >
+              <option value="">Select risk (optional)</option>
+              <option value="greenfield">Greenfield</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="very_high">Very High</option>
+              <option value="rebuild_with_migration">Rebuild with Migration</option>
+            </select>
+          </div>
           <TextField label="How It Started" value={formData.how_it_started || ""} onChange={(v) => setFormData({ ...formData, how_it_started: v })} multiline placeholder="Brief story of how this opportunity began" />
           <SelectField
             label="Assigned To"

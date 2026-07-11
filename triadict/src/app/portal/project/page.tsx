@@ -12,8 +12,10 @@ const timelinePhases = [
   { phase: "Discovery", key: "discovery" },
   { phase: "Design", key: "design" },
   { phase: "Build", key: "build" },
-  { phase: "QA", key: "qa" },
+  { phase: "Internal QA", key: "internal_qa" },
+  { phase: "Client Review", key: "client_review" },
   { phase: "Launch", key: "launch" },
+  { phase: "Post-Launch", key: "post_launch_monitoring" },
 ]
 
 export default function PortalProjectPage() {
@@ -88,6 +90,39 @@ export default function PortalProjectPage() {
               </div>
             )
           })}
+        </div>
+      </div>
+
+      <div className="bg-paper border border-hairline rounded-xl p-6">
+        <h2 className="font-display text-xl tracking-tight mb-6">Approval Gates</h2>
+        <div className="space-y-3">
+          {[
+            { key: "design", label: "Design Approval", description: "Approve the visual design before build begins" },
+            { key: "content", label: "Content Approval", description: "Approve all copy and content before launch" },
+            { key: "scope", label: "Final Scope Check", description: "Confirm all deliverables are complete" },
+            { key: "final", label: "Final Review", description: "Last look before going live" },
+            { key: "launch", label: "Launch Authorization", description: "Authorize deployment to production" },
+          ].map(gate => (
+            <div key={gate.key} className="flex items-center justify-between p-4 bg-paper2 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-inkblue/10 flex items-center justify-center">
+                  <CheckCircle2 className="w-4 h-4 text-inkblue" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-ink">{gate.label}</p>
+                  <p className="text-xs text-mute">{gate.description}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button className="px-3 py-1.5 text-xs bg-forest text-white rounded-lg hover:bg-forest/90 transition-colors">
+                  Approve
+                </button>
+                <button className="px-3 py-1.5 text-xs border border-red-500/30 text-red-500 rounded-lg hover:bg-red-500/5 transition-colors">
+                  Reject
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

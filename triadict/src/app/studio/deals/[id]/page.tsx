@@ -15,7 +15,7 @@ import { Modal } from "@/components/ui/Modal"
 import { LoadingState } from "@/components/ui/LoadingState"
 import { TextField } from "@/components/ui/TextField"
 import { SelectField } from "@/components/ui/SelectField"
-import type { Deal, UpdateDealInput, Workstream } from "@/types/database"
+import type { Deal, UpdateDealInput, Workstream, ServiceCategory, TechnicalRisk, SeoRisk } from "@/types/database"
 
 const tabs = [
   { id: "overview", label: "Overview", icon: Building2 },
@@ -29,21 +29,20 @@ const tabs = [
 ]
 
 const stages = [
+  { id: "lead", label: "Lead" },
   { id: "researching", label: "Researching" },
-  { id: "qualified", label: "Qualified" },
-  { id: "outreach_ready", label: "Outreach Ready" },
-  { id: "contacted", label: "Contacted" },
-  { id: "replied", label: "Replied" },
-  { id: "positive_reply", label: "Positive Reply" },
-  { id: "discovery_scheduled", label: "Discovery" },
-  { id: "discovery_complete", label: "Discovery Complete" },
+  { id: "outreach_ready", label: "Outreach Sent" },
+  { id: "engaged", label: "Engaged" },
+  { id: "discovery_scheduled", label: "Discovery Scheduled" },
+  { id: "discovery_completed", label: "Discovery Completed" },
   { id: "scoping", label: "Scoping" },
-  { id: "proposal_sent", label: "Proposal" },
+  { id: "proposal_sent", label: "Proposal Sent" },
   { id: "negotiation", label: "Negotiation" },
-  { id: "verbal_yes", label: "Verbal Yes" },
-  { id: "won", label: "Won" },
+  { id: "agreement_sent", label: "Agreement Sent" },
+  { id: "awaiting_initial_payment", label: "Awaiting Payment" },
+  { id: "won_kickoff", label: "Won — Kickoff" },
   { id: "lost", label: "Lost" },
-  { id: "nurture", label: "Nurture" },
+  { id: "cancelled", label: "Cancelled" },
 ]
 const lostReasons = [
   { value: "no_budget", label: "No Budget" },
@@ -156,21 +155,21 @@ export default function DealDetailPage() {
 
   const getStageColor = (stage: string) => {
     const colors: Record<string, string> = {
+      lead: "bg-mute/10 text-mute",
       researching: "bg-mute/10 text-mute",
-      qualified: "bg-mute/10 text-mute",
       outreach_ready: "bg-inkblue/10 text-inkblue",
-      contacted: "bg-inkblue/10 text-inkblue",
-      replied: "bg-gold/10 text-gold",
-      positive_reply: "bg-gold/10 text-gold",
+      engaged: "bg-inkblue/10 text-inkblue",
       discovery_scheduled: "bg-gold/10 text-gold",
-      discovery_complete: "bg-inkblue/10 text-inkblue",
+      discovery_completed: "bg-gold/10 text-gold",
       scoping: "bg-coral/10 text-coral",
       proposal_sent: "bg-coral/10 text-coral",
       negotiation: "bg-coral/10 text-coral",
-      verbal_yes: "bg-forest/10 text-forest",
+      agreement_sent: "bg-forest/10 text-forest",
+      awaiting_initial_payment: "bg-gold/10 text-gold",
+      won_kickoff: "bg-forest/10 text-forest",
       won: "bg-forest/10 text-forest",
       lost: "bg-red-500/10 text-red-500",
-      nurture: "bg-mute/10 text-mute",
+      cancelled: "bg-mute/10 text-mute",
     }
     return colors[stage] || "bg-mute/10 text-mute"
   }
@@ -268,15 +267,15 @@ export default function DealDetailPage() {
 
         {/* Stage progress */}
         <div className="mt-6 flex items-center gap-1">
-          {stages.filter(s => !["won", "lost", "nurture"].includes(s.id)).map((stage, idx) => (
+          {stages.filter(s => !["won_kickoff", "won", "lost", "cancelled"].includes(s.id)).map((stage, idx) => (
             <div key={stage.id} className="flex-1">
               <div className={`h-1.5 rounded-full ${idx < currentStageIndex ? "bg-forest" : idx === currentStageIndex ? "bg-coral" : "bg-hairline"}`} />
             </div>
           ))}
         </div>
         <div className="flex items-center justify-between mt-1">
-          <span className="text-[10px] text-mute font-mono uppercase tracking-wider">Researching</span>
-          <span className="text-[10px] text-mute font-mono uppercase tracking-wider">Verbal Yes</span>
+          <span className="text-[10px] text-mute font-mono uppercase tracking-wider">Lead</span>
+          <span className="text-[10px] text-mute font-mono uppercase tracking-wider">Awaiting Payment</span>
         </div>
       </div>
 
@@ -312,6 +311,9 @@ export default function DealDetailPage() {
                 <InfoRow label="Industry" value={deal.industry || "—"} />
                 <InfoRow label="Country" value={deal.country || "—"} />
                 <InfoRow label="Timezone" value={deal.timezone || "—"} />
+                <InfoRow label="Service Category" value={deal.service_category?.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()) || "—"} />
+                <InfoRow label="Technical Risk" value={deal.technical_risk?.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()) || "—"} />
+                <InfoRow label="SEO Risk" value={deal.seo_risk?.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()) || "—"} />
                 <InfoRow label="Lead Source" value={deal.lead_source || deal.source || "—"} />
               </div>
             </div>
@@ -418,6 +420,39 @@ export default function DealDetailPage() {
                 </div>
               ) : (
                 <p className="text-sm text-mute">No qualification data yet.</p>
+              )}
+            </div>
+
+            {/* Payment Gate Checklist */}
+            <div className="bg-paper border border-hairline rounded-xl p-6">
+              <h2 className="font-display text-lg tracking-tight text-ink mb-4">Payment Gate</h2>
+              {deal.payment_gate_status ? (
+                <div className="space-y-3">
+                  {[
+                    { key: "scope_agreed", label: "Scope Agreed", ts: deal.payment_gate_status.scope_agreed_at },
+                    { key: "agreement_signed", label: "Agreement Signed", ts: deal.payment_gate_status.agreement_signed_at },
+                    { key: "sow_approved", label: "SOW Approved", ts: deal.payment_gate_status.sow_approved_at },
+                    { key: "initial_payment_received", label: "Initial Payment Received", ts: deal.payment_gate_status.initial_payment_received_at },
+                  ].map(item => (
+                    <div key={item.key} className="flex items-center justify-between py-2 border-b border-hairline last:border-0">
+                      <div className="flex items-center gap-2">
+                        {item.ts ? (
+                          <CheckCircle2 className="w-4 h-4 text-forest" />
+                        ) : (
+                          <div className="w-4 h-4 rounded-full border-2 border-hairline" />
+                        )}
+                        <span className={`text-sm ${item.ts ? "text-ink font-medium" : "text-mute"}`}>{item.label}</span>
+                      </div>
+                      {item.ts && (
+                        <span className="text-xs text-mute">
+                          {new Date(item.ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-mute">No payment gate data yet.</p>
               )}
             </div>
           </div>

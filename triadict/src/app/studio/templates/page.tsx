@@ -12,6 +12,8 @@ const templateCategories = [
   { value: "proposal", label: "Proposal" },
   { value: "contract", label: "Contract" },
   { value: "sow", label: "Statement of Work" },
+  { value: "monthly_report", label: "Monthly Report" },
+  { value: "case_study", label: "Case Study" },
   { value: "invoice", label: "Invoice" },
   { value: "brief", label: "Creative Brief" },
   { value: "checklist", label: "Checklist" },
@@ -28,6 +30,7 @@ export default function TemplatesPage() {
   const [editTarget, setEditTarget] = useState<Template | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Template | null>(null)
   const [formData, setFormData] = useState({ name: "", category: "proposal", content_md: "", merge_fields: "" })
+  const [attachments, setAttachments] = useState<{ file_type: "image" | "pdf"; file_name: string }[]>([])
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -196,8 +199,25 @@ export default function TemplatesPage() {
           <SelectField label="Category" value={formData.category} onChange={(v) => setFormData({ ...formData, category: v })} options={templateCategories} />
           <TextField label="Content (Markdown)" value={formData.content_md} onChange={(v) => setFormData({ ...formData, content_md: v })} multiline />
           <TextField label="Merge Fields (comma-separated)" value={formData.merge_fields} onChange={(v) => setFormData({ ...formData, merge_fields: v })} placeholder="client_name, project_name, amount" />
+          <div>
+            <label className="block text-sm font-medium mb-1.5">Attachments</label>
+            <div className="border border-dashed border-hairline rounded-lg p-4 text-center">
+              <p className="text-xs text-mute mb-2">Drag files here or click to upload</p>
+              <p className="text-[10px] text-mute">Supports images (PNG, JPG, WebP) and PDFs. Max 10MB each.</p>
+            </div>
+            {attachments.length > 0 && (
+              <div className="mt-2 space-y-1">
+                {attachments.map((a, i) => (
+                  <div key={i} className="flex items-center justify-between p-2 bg-paper2 rounded text-xs">
+                    <span className="text-ink">{a.file_name}</span>
+                    <span className="text-mute">{a.file_type}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-sm text-mute hover:text-ink transition-colors">Cancel</button>
+            <button onClick={() => { setShowCreateModal(false); setAttachments([]) }} className="px-4 py-2 text-sm text-mute hover:text-ink transition-colors">Cancel</button>
             <button onClick={handleCreate} disabled={!formData.name} className="px-4 py-2 bg-ink text-paper text-sm rounded-lg hover:bg-ink/90 transition-colors disabled:opacity-50">Create</button>
           </div>
         </div>
@@ -209,6 +229,13 @@ export default function TemplatesPage() {
           <SelectField label="Category" value={formData.category} onChange={(v) => setFormData({ ...formData, category: v })} options={templateCategories} />
           <TextField label="Content (Markdown)" value={formData.content_md} onChange={(v) => setFormData({ ...formData, content_md: v })} multiline />
           <TextField label="Merge Fields (comma-separated)" value={formData.merge_fields} onChange={(v) => setFormData({ ...formData, merge_fields: v })} placeholder="client_name, project_name, amount" />
+          <div>
+            <label className="block text-sm font-medium mb-1.5">Attachments</label>
+            <div className="border border-dashed border-hairline rounded-lg p-4 text-center">
+              <p className="text-xs text-mute mb-2">Drag files here or click to upload</p>
+              <p className="text-[10px] text-mute">Supports images (PNG, JPG, WebP) and PDFs. Max 10MB each.</p>
+            </div>
+          </div>
           <div className="flex justify-end gap-3 pt-2">
             <button onClick={() => setEditTarget(null)} className="px-4 py-2 text-sm text-mute hover:text-ink transition-colors">Cancel</button>
             <button onClick={handleEdit} disabled={!formData.name} className="px-4 py-2 bg-ink text-paper text-sm rounded-lg hover:bg-ink/90 transition-colors disabled:opacity-50">Save</button>

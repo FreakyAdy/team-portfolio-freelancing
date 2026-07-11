@@ -73,6 +73,24 @@ export default function PortalInvoicesPage() {
                   {inv.type.replace('_', ' ')}
                 </span>
               </div>
+              <div className="mt-4 pt-4 border-t border-hairline">
+                <p className="text-xs font-mono uppercase tracking-wider text-mute mb-3">Payment Schedule</p>
+                <div className="flex items-center gap-2">
+                  {[
+                    { label: "Deposit", condition: "On agreement", paid: inv.status === "paid" },
+                    { label: "Progress", condition: "Mid-project", paid: inv.status === "paid" },
+                    { label: "Final", condition: "On completion", paid: false },
+                  ].map((installment, i) => (
+                    <div key={i} className="flex-1">
+                      <div className={`h-1.5 rounded-full ${installment.paid ? "bg-forest" : i === 0 && inv.status !== "paid" ? "bg-coral" : "bg-hairline"}`} />
+                      <p className={`text-[10px] mt-1 ${installment.paid ? "text-forest" : "text-mute"}`}>
+                        {installment.label}
+                      </p>
+                      <p className="text-[10px] text-mute/60">{installment.condition}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           ))}
         </div>
