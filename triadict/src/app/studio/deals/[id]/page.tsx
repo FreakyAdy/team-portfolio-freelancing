@@ -207,7 +207,7 @@ export default function DealDetailPage() {
             <div>
               <div className="flex items-center gap-3 mb-1">
                 <h1 className="font-display text-3xl tracking-tight text-ink">{deal.name}</h1>
-                <span className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium ${getStageColor(deal.stage)}`}>
+                <span className={`inline-flex items-center h-6 px-2.5 rounded-md text-xs font-sans font-medium ${getStageColor(deal.stage)}`}>
                   {stages.find(s => s.id === deal.stage)?.label || deal.stage}
                 </span>
               </div>
@@ -220,22 +220,24 @@ export default function DealDetailPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <div className="relative">
               <button
                 onClick={() => setShowStageMenu(!showStageMenu)}
-                className="px-3 py-1.5 text-sm border border-hairline rounded-lg hover:bg-paper2 transition-colors flex items-center gap-1"
+                className="h-8 px-3 text-sm font-sans border border-hairline rounded-lg hover:bg-paper2 transition-colors flex items-center gap-1.5"
               >
-                Change Stage <ChevronDown className="w-3 h-3" />
+                {stages.find(s => s.id === deal.stage)?.label || deal.stage}
+                <ChevronDown className="w-3.5 h-3.5 text-mute" />
               </button>
               {showStageMenu && (
-                <div className="absolute right-0 top-full mt-1 w-48 bg-paper border border-hairline rounded-lg shadow-lg z-10 py-1 max-h-64 overflow-y-auto">
+                <div className="absolute right-0 top-full mt-1 w-52 bg-paper border border-hairline rounded-lg shadow-lg z-20 py-1 max-h-72 overflow-y-auto">
                   {stages.map(s => (
                     <button
                       key={s.id}
                       onClick={() => handleStageChange(s.id)}
-                      className={`w-full text-left px-3 py-1.5 text-sm hover:bg-paper2 transition-colors ${s.id === deal.stage ? "font-medium text-ink" : "text-mute"}`}
+                      className={`w-full text-left px-3 py-2 text-sm hover:bg-paper2 transition-colors ${s.id === deal.stage ? "font-medium text-coral" : "text-mute hover:text-ink"}`}
                     >
+                      {s.id === deal.stage && <span className="inline-block w-1.5 h-1.5 rounded-full bg-coral mr-2" />}
                       {s.label}
                     </button>
                   ))}
@@ -244,19 +246,19 @@ export default function DealDetailPage() {
             </div>
             {deal.stage !== "won" && deal.stage !== "lost" && (
               <>
-                <button onClick={() => setShowWonModal(true)} className="px-3 py-1.5 text-sm bg-forest text-white rounded-lg hover:bg-forest/90 transition-colors flex items-center gap-1">
+                <button onClick={() => setShowWonModal(true)} className="h-8 px-3 text-sm font-sans bg-forest text-white rounded-lg hover:bg-forest/90 transition-colors flex items-center gap-1.5">
                   <CheckCircle2 className="w-3.5 h-3.5" /> Won
                 </button>
-                <button onClick={() => setShowLostModal(true)} className="px-3 py-1.5 text-sm border border-red-500/30 text-red-500 rounded-lg hover:bg-red-500/5 transition-colors flex items-center gap-1">
+                <button onClick={() => setShowLostModal(true)} className="h-8 px-3 text-sm font-sans border border-red-500/30 text-red-500 rounded-lg hover:bg-red-500/5 transition-colors flex items-center gap-1.5">
                   <XCircle className="w-3.5 h-3.5" /> Lost
                 </button>
               </>
             )}
             <div className="relative group">
-              <button className="p-2 text-mute hover:text-ink hover:bg-paper2 rounded-lg transition-colors">
-                <MoreHorizontal className="w-5 h-5" />
+              <button className="h-8 w-8 flex items-center justify-center text-mute hover:text-ink hover:bg-paper2 rounded-lg transition-colors">
+                <MoreHorizontal className="w-4 h-4" />
               </button>
-              <div className="absolute right-0 top-full mt-1 w-40 bg-paper border border-hairline rounded-lg shadow-lg z-10 py-1 hidden group-hover:block">
+              <div className="absolute right-0 top-full mt-1 w-40 bg-paper border border-hairline rounded-lg shadow-lg z-20 py-1 hidden group-hover:block">
                 <button onClick={() => setShowDeleteModal(true)} className="w-full text-left px-3 py-1.5 text-sm text-red-500 hover:bg-paper2 transition-colors">
                   Delete Deal
                 </button>

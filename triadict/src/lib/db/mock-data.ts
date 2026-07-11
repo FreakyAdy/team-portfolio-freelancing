@@ -88,7 +88,7 @@ const eveDeal: Deal = {
   org_id: "00000000-0000-0000-0000-000000000001",
   lead_id: null,
   name: "Eve Olasov – Multi-Site Website Modernization",
-  stage: "discovery_scheduled",
+  stage: "engaged",
   value_cents: 0,
   currency: "USD",
   probability: 70,

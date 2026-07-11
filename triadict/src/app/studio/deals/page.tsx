@@ -41,7 +41,7 @@ const savedViews = [
   { id: "overdue", label: "Overdue Follow Ups", filter: "all" },
   { id: "research", label: "Research", filter: "researching" },
   { id: "outreach", label: "Outreach", filter: "outreach_ready" },
-  { id: "discovery", label: "Discovery", filter: "discovery_scheduled" },
+  { id: "engaged", label: "Engaged", filter: "engaged" },
   { id: "proposals", label: "Proposals Outstanding", filter: "proposal_sent" },
   { id: "negotiations", label: "Negotiations", filter: "negotiation" },
   { id: "payment_pending", label: "Awaiting Payment", filter: "awaiting_initial_payment" },
@@ -291,11 +291,11 @@ export default function DealsPage() {
         />
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          <div className="flex gap-4 overflow-x-auto pb-4 -mx-1 px-1 snap-x snap-mandatory">
             {stages.map(stage => {
               const stageDeals = filteredDeals.filter(deal => deal.stage === stage.id)
               return (
-                <div key={stage.id} className="min-w-[260px]">
+                <div key={stage.id} className="min-w-[280px] max-w-[280px] snap-start flex-shrink-0">
                   <div className={`flex items-center justify-between p-3 rounded-t-xl ${stage.color}`}>
                     <div className="flex items-center gap-2">
                       <span className={`text-sm font-sans font-medium ${stage.textColor}`}>
