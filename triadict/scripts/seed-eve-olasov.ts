@@ -24,7 +24,6 @@ export async function seedEveOlasov() {
     .from("organizations")
     .upsert({
       id: "eve-olasov-company-001",
-      org_id: ORG_ID,
       name: "Eve Olasov Real Estate",
       slug: "eve-olasov-real-estate",
       type: "client",

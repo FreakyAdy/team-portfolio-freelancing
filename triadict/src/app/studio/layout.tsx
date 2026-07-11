@@ -194,7 +194,7 @@ export default function StudioLayout({
         fixed top-0 left-0 h-full bg-paper border-r border-hairline z-40 flex flex-col
         transition-all duration-300
         ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-        ${sidebarOpen ? "w-[260px]" : "w-[72px]"}>
+        ${sidebarOpen ? "w-[240px]" : "w-[72px]"}>
       `}>
         {/* Logo */}
         <div className="h-16 flex items-center px-5 border-b border-hairline">
@@ -292,7 +292,7 @@ export default function StudioLayout({
         className={`
           transition-all duration-300 min-h-screen
           lg:pt-0 pt-16
-          ${sidebarOpen ? "lg:ml-[260px]" : "lg:ml-[72px]"}
+          ${sidebarOpen ? "lg:ml-[240px]" : "lg:ml-[72px]"}
         `}
       >
         {/* Top bar (desktop) */}
