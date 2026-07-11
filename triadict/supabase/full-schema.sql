@@ -394,7 +394,29 @@ create table payments (
 );
 
 -- ============================================
--- WAVE 6: CLIENT ONBOARDING
+-- CLIENTS (must come before client_websites / client_onboarding)
+-- ============================================
+
+create table clients (
+  id uuid primary key default gen_random_uuid(),
+  org_id uuid references organizations(id) unique not null,
+  primary_contact_id uuid references people(id),
+  account_owner_id uuid references people(id),
+  status text default 'active' check (status in ('active', 'onboarding', 'at_risk', 'churned')),
+  client_since date,
+  communication_preference text check (communication_preference in ('email', 'phone', 'whatsapp', 'async')),
+  health text default 'green' check (health in ('green', 'yellow', 'red')),
+  expansion_potential text default 'low' check (expansion_potential in ('low', 'medium', 'high')),
+  notes text,
+  service_interest text[] default '{}',
+  lifetime_value_one_time int default 0,
+  lifetime_value_recurring int default 0,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- ============================================
+-- CLIENT ONBOARDING
 -- ============================================
 
 create table client_onboarding (
@@ -552,28 +574,6 @@ create table meetings (
 create index idx_meetings_company on meetings(company_id);
 create index idx_meetings_project on meetings(project_id);
 create index idx_meetings_date on meetings(meeting_date);
-
--- ============================================
--- CLIENTS
--- ============================================
-
-create table clients (
-  id uuid primary key default gen_random_uuid(),
-  org_id uuid references organizations(id) unique not null,
-  primary_contact_id uuid references people(id),
-  account_owner_id uuid references people(id),
-  status text default 'active' check (status in ('active', 'onboarding', 'at_risk', 'churned')),
-  client_since date,
-  communication_preference text check (communication_preference in ('email', 'phone', 'whatsapp', 'async')),
-  health text default 'green' check (health in ('green', 'yellow', 'red')),
-  expansion_potential text default 'low' check (expansion_potential in ('low', 'medium', 'high')),
-  notes text,
-  service_interest text[] default '{}',
-  lifetime_value_one_time int default 0,
-  lifetime_value_recurring int default 0,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
-);
 
 -- ============================================
 -- ROW LEVEL SECURITY (permissive for now)
