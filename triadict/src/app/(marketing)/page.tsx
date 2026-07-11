@@ -109,6 +109,7 @@ const heroWords = [
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [navScrolled, setNavScrolled] = useState(false)
+  const [dashDropdownOpen, setDashDropdownOpen] = useState(false)
 
   useEffect(() => {
     const onScroll = () => setNavScrolled(window.scrollY > 12)
@@ -148,6 +149,18 @@ export default function HomePage() {
 
   const closeMobileMenu = () => setMobileMenuOpen(false)
 
+  useEffect(() => {
+    if (!dashDropdownOpen) return
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest("[data-dash-dropdown]")) {
+        setDashDropdownOpen(false)
+      }
+    }
+    document.addEventListener("click", handleClickOutside)
+    return () => document.removeEventListener("click", handleClickOutside)
+  }, [dashDropdownOpen])
+
   return (
     <>
       {/* �"��"��"� SKIP LINK �"��"��"� */}
@@ -178,6 +191,31 @@ export default function HomePage() {
             <a href="#process" className="ulink text-ink/90 hover:text-ink">Process</a>
             <a href="#team" className="ulink text-ink/90 hover:text-ink">Team</a>
             <a href="#pricing" className="ulink text-ink/90 hover:text-ink">Pricing</a>
+            <div className="relative" data-dash-dropdown>
+              <button
+                className="ulink text-ink/90 hover:text-ink flex items-center gap-1.5"
+                onClick={() => setDashDropdownOpen(!dashDropdownOpen)}
+                aria-expanded={dashDropdownOpen}
+                aria-haspopup="true"
+              >
+                Dashboards
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.25" className={`transition-transform duration-200 ${dashDropdownOpen ? "rotate-180" : ""}`}>
+                  <path d="M2 3.5L5 6.5L8 3.5" />
+                </svg>
+              </button>
+              {dashDropdownOpen && (
+                <div className="absolute top-full right-0 mt-3 w-52 bg-paper border border-hairline shadow-[0_8px_32px_-8px_rgba(10,10,10,0.12)] py-2 z-50">
+                  <a href="/studio/dashboard" className="block px-4 py-2.5 text-[13.5px] text-ink/85 hover:text-ink hover:bg-paper2 transition-colors">
+                    <span className="font-medium">Studio</span>
+                    <span className="block text-[11px] text-mute mt-0.5">CRM & project management</span>
+                  </a>
+                  <a href="/portal/dashboard" className="block px-4 py-2.5 text-[13.5px] text-ink/85 hover:text-ink hover:bg-paper2 transition-colors">
+                    <span className="font-medium">Client Portal</span>
+                    <span className="block text-[11px] text-mute mt-0.5">Project status & invoices</span>
+                  </a>
+                </div>
+              )}
+            </div>
           </nav>
 
           <div className="flex items-center gap-3">
@@ -203,6 +241,15 @@ export default function HomePage() {
             <a href="#process" className="font-display text-[34px] tracking-tight py-2 menu-link" onClick={closeMobileMenu}>Process</a>
             <a href="#team" className="font-display text-[34px] tracking-tight py-2 menu-link" onClick={closeMobileMenu}>Team</a>
             <a href="#pricing" className="font-display text-[34px] tracking-tight py-2 menu-link" onClick={closeMobileMenu}>Pricing</a>
+            <div className="border-t border-hairline my-3 pt-4">
+              <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-mute mb-3">Dashboards</div>
+              <a href="/studio/dashboard" className="font-display text-[26px] tracking-tight py-1.5 menu-link block">
+                Studio
+              </a>
+              <a href="/portal/dashboard" className="font-display text-[26px] tracking-tight py-1.5 menu-link block">
+                Client Portal
+              </a>
+            </div>
             <a href="#contact" className="btn btn-primary justify-center mt-6 menu-link" onClick={closeMobileMenu}>Start a project {"\u2192"}</a>
             <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-mute mt-8 flex justify-between">
               <span>Triadict \u00b7 Pune</span>
@@ -693,6 +740,14 @@ export default function HomePage() {
               <ul className="space-y-2 text-[14.5px]">
                 <li><a href="#process" className="ulink">Process</a></li>
                 <li><a href="#team" className="ulink">Team</a></li>
+              </ul>
+            </div>
+
+            <div className="md:col-span-2">
+              <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-mute mb-4">Dashboards</div>
+              <ul className="space-y-2 text-[14.5px]">
+                <li><a href="/studio/dashboard" className="ulink">Studio CRM</a></li>
+                <li><a href="/portal/dashboard" className="ulink">Client Portal</a></li>
               </ul>
             </div>
 
