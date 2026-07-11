@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import type { Person } from "@/types/database"
+import { mockPeople } from "./mock-data"
 
 export async function listContacts(params?: {
   org_id?: string
@@ -27,7 +28,14 @@ export async function listContacts(params?: {
     if (error) return []
     return data as Person[]
   } catch {
-    return []
+    let result = mockPeople
+    if (params?.org_id) result = result.filter(c => c.org_id === params.org_id)
+    if (params?.role) result = result.filter(c => c.role === params.role)
+    if (params?.search) {
+      const q = params.search.toLowerCase()
+      result = result.filter(c => (c.full_name || "").toLowerCase().includes(q) || c.email.toLowerCase().includes(q))
+    }
+    return result
   }
 }
 
@@ -38,7 +46,7 @@ export async function getContact(id: string): Promise<Person | null> {
     if (error) return null
     return data as Person
   } catch {
-    return null
+    return mockPeople.find(c => c.id === id) || null
   }
 }
 

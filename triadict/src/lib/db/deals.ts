@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import type { Deal, CreateDealInput, UpdateDealInput, UpdateDealStageInput, DealStage, Workstream } from "@/types/database"
+import { mockDeals, mockWorkstreams } from "./mock-data"
 
 export async function listDeals(params?: {
   stage?: string
@@ -31,7 +32,18 @@ export async function listDeals(params?: {
     if (error) return []
     return data as unknown as Deal[]
   } catch {
-    return []
+    let result = mockDeals
+    if (params?.stage && params.stage !== "all") {
+      result = result.filter(d => d.stage === params.stage)
+    }
+    if (params?.assigned_to) {
+      result = result.filter(d => d.assigned_to === params.assigned_to)
+    }
+    if (params?.search) {
+      const q = params.search.toLowerCase()
+      result = result.filter(d => d.name.toLowerCase().includes(q))
+    }
+    return result
   }
 }
 
@@ -47,7 +59,7 @@ export async function getDeal(id: string): Promise<Deal | null> {
     if (error) return null
     return data as unknown as Deal
   } catch {
-    return null
+    return mockDeals.find(d => d.id === id) || null
   }
 }
 
@@ -251,7 +263,28 @@ export async function getPipelineSummary() {
       byStage,
     }
   } catch {
-    return { total: 0, totalValue: 0, weighted: 0, avg: 0, winRate: 0, wonCount: 0, byStage: [] }
+    const deals = mockDeals
+    const total = deals.length
+    const totalValue = deals.reduce((s, d) => s + d.value_cents, 0)
+    const weightedValue = deals.reduce((s, d) => s + (d.value_cents * d.probability / 100), 0)
+    const wonCount = deals.filter(d => d.stage === "won").length
+    const lostCount = deals.filter(d => d.stage === "lost").length
+    const closedCount = wonCount + lostCount
+    const stages = ["researching", "qualified", "outreach_ready", "contacted", "replied", "positive_reply", "discovery_scheduled", "discovery_complete", "scoping", "proposal_sent", "negotiation", "verbal_yes", "won", "lost", "nurture"]
+    const byStage = stages.map(stage => ({
+      stage,
+      count: deals.filter(d => d.stage === stage).length,
+      value: deals.filter(d => d.stage === stage).reduce((s, d) => s + d.value_cents, 0),
+    }))
+    return {
+      total,
+      totalValue,
+      weighted: weightedValue,
+      avg: total > 0 ? Math.round(totalValue / total) : 0,
+      winRate: closedCount > 0 ? Math.round((wonCount / closedCount) * 100) : 0,
+      wonCount,
+      byStage,
+    }
   }
 }
 
@@ -265,7 +298,7 @@ export async function listWorkstreams(dealId: string): Promise<Workstream[]> {
     if (error) return []
     return data as Workstream[]
   } catch {
-    return []
+    return mockWorkstreams.filter(w => w.deal_id === dealId).sort((a, b) => a.sort_order - b.sort_order)
   }
 }
 

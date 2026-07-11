@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import type { Organization } from "@/types/database"
+import { mockOrganizations } from "./mock-data"
 
 export async function listCompanies(params?: {
   search?: string
@@ -24,7 +25,17 @@ export async function listCompanies(params?: {
     if (error) return []
     return data as Organization[]
   } catch {
-    return []
+    let result = mockOrganizations
+    if (params?.type && params.type !== "all") {
+      result = result.filter(c => c.type === params.type)
+    } else {
+      result = result.filter(c => c.slug !== "triadict")
+    }
+    if (params?.search) {
+      const q = params.search.toLowerCase()
+      result = result.filter(c => c.name.toLowerCase().includes(q) || c.slug.toLowerCase().includes(q))
+    }
+    return result
   }
 }
 
@@ -35,7 +46,7 @@ export async function getCompany(id: string): Promise<Organization | null> {
     if (error) return null
     return data as Organization
   } catch {
-    return null
+    return mockOrganizations.find(c => c.id === id) || null
   }
 }
 

@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import type { Client, ClientStatus, ClientHealth, CreateClientInput, Organization, ServiceCategory } from "@/types/database"
+import { mockClients } from "./mock-data"
 
 function getDefaultWorkstreams(serviceCategory?: ServiceCategory | null): string[] {
   switch (serviceCategory) {
@@ -45,7 +46,10 @@ export async function listClients(params?: {
     if (error) return []
     return data as unknown as (Client & { organization?: Organization })[]
   } catch {
-    return []
+    let result = mockClients
+    if (params?.status && params.status !== "all") result = result.filter(c => c.status === params.status)
+    if (params?.health && params.health !== "all") result = result.filter(c => c.health === params.health)
+    return result
   }
 }
 
@@ -61,7 +65,7 @@ export async function getClient(id: string): Promise<(Client & { organization?: 
     if (error) return null
     return data as unknown as (Client & { organization?: Organization })
   } catch {
-    return null
+    return mockClients.find(c => c.id === id) || null
   }
 }
 
@@ -207,6 +211,13 @@ export async function getClientMetrics() {
       churned: clients.filter(c => c.status === "churned").length,
     }
   } catch {
-    return { total: 0, active: 0, at_risk: 0 }
+    const clients = mockClients
+    return {
+      total: clients.length,
+      active: clients.filter(c => c.status === "active").length,
+      onboarding: clients.filter(c => c.status === "onboarding").length,
+      at_risk: clients.filter(c => c.status === "at_risk").length,
+      churned: clients.filter(c => c.status === "churned").length,
+    }
   }
 }
