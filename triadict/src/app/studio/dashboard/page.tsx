@@ -431,35 +431,6 @@ export default function StudioDashboard() {
           )}
         </div>
       </div>
-
-      {/* Seed data helper — visible only in dev mode */}
-      <div className="mt-8 p-4 bg-paper2 border border-hairline rounded-xl">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-sans font-medium text-ink text-sm">Seed Eve Olasov Opportunity</h3>
-            <p className="text-xs text-mute mt-0.5">Requires Supabase to be configured. Creates company, contact, deal, and 3 website workstreams.</p>
-          </div>
-          <button
-            onClick={async () => {
-              try {
-                const res = await fetch("/api/seed/eve-olasov", { method: "POST" })
-                const data = await res.json()
-                if (data.success) {
-                  alert("Eve Olasov opportunity seeded successfully!")
-                  loadData()
-                } else {
-                  alert(`Seed failed: ${data.error}`)
-                }
-              } catch (e) {
-                alert("Seed failed — Supabase may not be configured yet.")
-              }
-            }}
-            className="px-4 py-2 text-sm bg-ink text-paper rounded-lg hover:bg-charcoal transition-colors"
-          >
-            Seed Data
-          </button>
-        </div>
-      </div>
     </div>
   )
 }
