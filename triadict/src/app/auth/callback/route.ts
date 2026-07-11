@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/studio'
+  const next = searchParams.get('next') ?? '/portal'
   const error = searchParams.get('error')
   const errorDescription = searchParams.get('error_description')
 
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!exchangeError) {
-      const safeNext = next.startsWith('/') ? next : '/studio'
+      const safeNext = next.startsWith('/') ? next : '/portal'
       return NextResponse.redirect(`${origin}${safeNext}`)
     }
   }

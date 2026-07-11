@@ -1,21 +1,32 @@
 const STORAGE_KEY = "triadict_demo_user"
+const USERS_KEY = "triadict_demo_users"
 
 interface DemoUser {
   name: string
   email: string
 }
 
-const DEMO_CREDENTIALS = {
+const STUDIO_CREDENTIALS = {
   email: "Aditya",
   password: "12324",
   user: { name: "Aditya", email: "Aditya" },
 }
 
 export function demoLogin(email: string, password: string): { user: DemoUser | null; error: string | null } {
-  if (email === DEMO_CREDENTIALS.email && password === DEMO_CREDENTIALS.password) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(DEMO_CREDENTIALS.user))
-    return { user: DEMO_CREDENTIALS.user, error: null }
+  if (email === STUDIO_CREDENTIALS.email && password === STUDIO_CREDENTIALS.password) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(STUDIO_CREDENTIALS.user))
+    return { user: STUDIO_CREDENTIALS.user, error: null }
   }
+
+  const existing = localStorage.getItem(USERS_KEY)
+  const users: Array<{ name: string; email: string; password: string }> = existing ? JSON.parse(existing) : []
+  const match = users.find((u) => u.email === email && u.password === password)
+  if (match) {
+    const user = { name: match.name, email: match.email }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(user))
+    return { user, error: null }
+  }
+
   return { user: null, error: "Invalid credentials" }
 }
 
@@ -23,13 +34,13 @@ export function demoSignup(name: string, email: string, password: string): { suc
   if (password.length < 6) {
     return { success: false, error: "Password must be at least 6 characters" }
   }
-  const existing = localStorage.getItem("triadict_demo_users")
+  const existing = localStorage.getItem(USERS_KEY)
   const users: Array<{ name: string; email: string; password: string }> = existing ? JSON.parse(existing) : []
   if (users.some((u) => u.email === email)) {
     return { success: false, error: "Account already exists" }
   }
   users.push({ name, email, password })
-  localStorage.setItem("triadict_demo_users", JSON.stringify(users))
+  localStorage.setItem(USERS_KEY, JSON.stringify(users))
   return { success: true, error: null }
 }
 
