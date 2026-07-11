@@ -85,11 +85,16 @@ export default function StudioLayout({
         }
         return
       }
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      setLoading(false)
-      
-      if (!user) {
+      if (supabase) {
+        const { data: { user } } = await supabase.auth.getUser()
+        setUser(user)
+        setLoading(false)
+        
+        if (!user) {
+          router.push("/auth/login?redirect=/studio")
+        }
+      } else {
+        setLoading(false)
         router.push("/auth/login?redirect=/studio")
       }
     }
@@ -102,7 +107,9 @@ export default function StudioLayout({
       router.push("/")
       return
     }
-    await supabase.auth.signOut()
+    if (!isDev && supabase) {
+      await supabase.auth.signOut()
+    }
     router.push("/")
   }
 

@@ -50,11 +50,16 @@ export default function PortalLayout({
         }
         return
       }
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      setLoading(false)
-      
-      if (!user) {
+      if (supabase) {
+        const { data: { user } } = await supabase.auth.getUser()
+        setUser(user)
+        setLoading(false)
+        
+        if (!user) {
+          router.push("/auth/login?redirect=/portal")
+        }
+      } else {
+        setLoading(false)
         router.push("/auth/login?redirect=/portal")
       }
     }
@@ -67,7 +72,9 @@ export default function PortalLayout({
       router.push("/")
       return
     }
-    await supabase.auth.signOut()
+    if (supabase) {
+      await supabase.auth.signOut()
+    }
     router.push("/")
   }
 
