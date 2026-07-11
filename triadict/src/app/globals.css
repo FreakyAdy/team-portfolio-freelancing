@@ -703,19 +703,6 @@ details .faq-num {
 }
 
 /* Sidebar navigation */
-.sidebar {
-  width: 260px;
-  height: 100vh;
-  position: fixed;
-  left: 0;
-  top: 0;
-  background: var(--paper);
-  border-right: 1px solid var(--hairline);
-  z-index: 40;
-  display: flex;
-  flex-direction: column;
-}
-
 .sidebar-link {
   display: flex;
   align-items: center;
@@ -764,30 +751,6 @@ details .faq-num {
   box-shadow: 0 4px 12px rgba(232,90,47,0.08);
 }
 
-/* Kanban columns */
-.kanban-column {
-  min-height: 200px;
-  background: var(--paper2);
-  border: 1px solid var(--hairline);
-  border-radius: 12px;
-  padding: 16px;
-}
-
-.kanban-card {
-  background: white;
-  border: 1px solid var(--hairline);
-  border-radius: 8px;
-  padding: 16px;
-  cursor: pointer;
-  transition: all 0.2s var(--ease);
-}
-
-.kanban-card:hover {
-  border-color: var(--coral);
-  box-shadow: 0 2px 8px rgba(232,90,47,0.1);
-  transform: translateY(-2px);
-}
-
 /* Status badges */
 .status-badge {
   display: inline-flex;
@@ -800,21 +763,6 @@ details .faq-num {
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
-
-.status-new { background: #E3F2FD; color: #1565C0; }
-.status-qualified { background: #FFF3E0; color: #E65100; }
-.status-proposal { background: #F3E5F5; color: #7B1FA2; }
-.status-won { background: #E8F5E9; color: #2E7D32; }
-.status-lost { background: #FFEBEE; color: #C62828; }
-.status-active { background: #E8F5E9; color: #2E7D32; }
-.status-on-hold { background: #FFF8E1; color: #F57F17; }
-.status-completed { background: #E0F7FA; color: #00838F; }
-.status-pending { background: #F5F5F5; color: #616161; }
-.status-approved { background: #E8F5E9; color: #2E7D32; }
-.status-rejected { background: #FFEBEE; color: #C62828; }
-.status-overdue { background: #FFEBEE; color: #C62828; }
-.status-paid { background: #E8F5E9; color: #2E7D32; }
-.status-draft { background: #F5F5F5; color: #616161; }
 
 /* Eyebrow dark */
 .eyebrow-dark { color: rgba(248,246,242,0.55); }
@@ -868,6 +816,9 @@ details .faq-num {
 .hero-3d-wrap:hover .hero-3d-label { opacity: 0.75; }
 @media (max-width: 767px) { .hero-3d-wrap { display: none; } }
 
+/* Marquee item font */
+.marquee-item { font-family: 'Instrument Serif', ui-serif, Georgia, serif; }
+
 /* Spec pill */
 .spec-pill {
   display: inline-flex; align-items: center;
@@ -877,60 +828,3 @@ details .faq-num {
   letter-spacing: 0.15em; text-transform: uppercase;
   font-weight: 500; line-height: 1;
 }
-
-/* PV monogram fix */
-.mono-pv { letter-spacing: 0.02em; }
-.mono-pv .pv-dot {
-  font-size: 0.85em; display: inline-block;
-  transform: translateY(-0.04em); margin: 0 0.06em;
-}
-
-/* Marquee item font */
-.marquee-item { font-family: 'Instrument Serif', ui-serif, Georgia, serif; }
-
-/* Anti-pattern list */
-.anti-item {
-  padding: 24px 0; border-top: 1px solid var(--hairline);
-  display: grid; grid-template-columns: 36px 1fr;
-  gap: 24px; align-items: baseline;
-  transition: padding 0.3s var(--ease);
-}
-.anti-item:last-child { border-bottom: 1px solid var(--hairline); }
-.anti-item:hover { padding-left: 12px; }
-.anti-x {
-  font-family: 'Instrument Serif', serif; font-style: italic;
-  font-size: 28px; color: var(--coral); line-height: 1;
-}
-
-/* Comparison */
-.compare-row {
-  display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr;
-  gap: 24px; padding: 20px 0;
-  border-top: 1px solid var(--hairline); align-items: baseline;
-}
-.compare-row:last-child { border-bottom: 1px solid var(--hairline); }
-.compare-row .label {
-  font-family: var(--font-mono); font-size: 11px;
-  letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute);
-}
-.compare-row .us { color: var(--ink); font-weight: 500; font-size: 15px; }
-.compare-row .them { color: var(--mute); font-size: 14px; }
-@media (max-width: 768px) {
-  .compare-row { grid-template-columns: 1fr 1fr; gap: 12px 24px; }
-  .compare-row .label { grid-column: 1 / -1; }
-}
-
-/* Side rail TOC */
-.toc-line {
-  display: flex; justify-content: space-between; gap: 12px;
-  padding: 9px 0; border-top: 1px solid var(--hairline);
-  font-family: var(--font-mono); font-size: 11px;
-  letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--mute);
-  transition: color 0.25s var(--ease), padding 0.25s var(--ease);
-}
-.toc-line:hover { color: var(--ink); padding-left: 4px; }
-.toc-line:last-child { border-bottom: 1px solid var(--hairline); }
-
-/* Font body utility */
-.font-body { font-family: 'Inter', system-ui, sans-serif; }
