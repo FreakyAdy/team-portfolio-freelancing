@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect } from "react"
 import dynamic from "next/dynamic"
@@ -72,25 +72,17 @@ const teamMembers = [
 ]
 
 /* �"��"��"� pricing �"��"��"� */
-const pricingTiers = [
-  {
-    name: "Essentials",
-    price: "$800 \u2013 $1,500 USD",
-    desc: "One-page sites and focused brochures. For solo professionals who need one beautiful page that does its job \u2014 fast, clean, accessibility-first.",
-    clients: ["Solo realtors", "Therapists", "Coaches", "Personal brands"],
-  },
-  {
-    name: "Standard",
-    price: "$1,500 \u2013 $3,000 USD",
-    desc: "Multi-page editorial sites with depth. Case studies, blog systems, lead capture, schema markup \u2014 everything a small business needs to look like a serious one.",
-    clients: ["Boutique services", "Small studios", "Consultants", "Real-estate teams"],
-  },
-  {
-    name: "Bespoke",
-    price: "$3,000+ USD",
-    desc: "Custom briefs that don\u2019t fit a range. Complex scope, specific integrations, multi-language sites, or ongoing partnerships. Quoted case-by-case.",
-    clients: ["Established brands", "Multi-stakeholder briefs", "Long-term retainers"],
-  },
+const services = [
+  { num: "01", name: "Websites & Web Engineering", desc: "Custom sites, redesigns, legacy modernization, SEO-sensitive migrations, landing pages, performance audits, and custom dashboards." },
+  { num: "02", name: "Monthly Website Optimization", desc: "Ongoing performance monitoring, SEO protection, Core Web Vitals tracking, and continuous improvement \u2014 month over month." },
+  { num: "03", name: "AI Website Agents & Chatbots", desc: "Custom AI assistants, support bots, lead qualification agents \u2014 built into your site, not bolted on." },
+  { num: "04", name: "AI Email Systems", desc: "Automated email workflows, follow-up sequences, nurture campaigns, and intelligent routing." },
+  { num: "05", name: "Lead Response & Qualification", desc: "Instant lead capture, smart routing, qualification workflows \u2014 so no lead sits cold." },
+  { num: "06", name: "CRM & Workflow Automation", desc: "Pipeline automation, internal tooling, data flows between your existing systems." },
+  { num: "07", name: "WhatsApp & SMS Automation", desc: "Conversational bots, appointment reminders, broadcast campaigns, two-way messaging." },
+  { num: "08", name: "Appointment & Follow-up Systems", desc: "Booking flows, no-show prevention, rescheduling logic, calendar integrations." },
+  { num: "09", name: "Internal AI Knowledge Systems", desc: "Company wikis powered by AI search, institutional memory, documentation that actually gets used." },
+  { num: "10", name: "Custom Business Dashboards", desc: "Real-time reporting, analytics views, KPI tracking \u2014 built around what you actually need to see." },
 ]
 
 /* �"��"��"� word-reveal helper �"��"��"� */
@@ -190,7 +182,7 @@ export default function HomePage() {
           <nav className="hidden md:flex items-center gap-9 text-[14px]" aria-label="Primary">
             <a href="#process" className="ulink text-ink/90 hover:text-ink">Process</a>
             <a href="#team" className="ulink text-ink/90 hover:text-ink">Team</a>
-            <a href="#pricing" className="ulink text-ink/90 hover:text-ink">Pricing</a>
+            <a href="#services" className="ulink text-ink/90 hover:text-ink">Services</a>
             <div className="relative" data-dash-dropdown>
               <button
                 className="relative text-ink/90 hover:text-ink flex items-center gap-1.5"
@@ -241,7 +233,7 @@ export default function HomePage() {
           <nav className="px-6 py-8 flex flex-col" aria-label="Mobile">
             <a href="#process" className="font-display text-[34px] tracking-tight py-2 menu-link" onClick={closeMobileMenu}>Process</a>
             <a href="#team" className="font-display text-[34px] tracking-tight py-2 menu-link" onClick={closeMobileMenu}>Team</a>
-            <a href="#pricing" className="font-display text-[34px] tracking-tight py-2 menu-link" onClick={closeMobileMenu}>Pricing</a>
+            <a href="#services" className="font-display text-[34px] tracking-tight py-2 menu-link" onClick={closeMobileMenu}>Services</a>
             <div className="border-t border-hairline my-3 pt-4">
               <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-mute mb-3">Dashboards</div>
               <a href="/auth/login?redirect=/studio/dashboard" className="font-display text-[26px] tracking-tight py-1.5 menu-link block">
@@ -293,7 +285,7 @@ export default function HomePage() {
                 <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-mute mb-3">In this issue</div>
                 <a href="#process" className="toc-line"><span>I. Process</span><span>p.02</span></a>
                 <a href="#team" className="toc-line"><span>II. Team</span><span>p.03</span></a>
-                <a href="#pricing" className="toc-line"><span>III. Pricing</span><span>p.04</span></a>
+                <a href="#services" className="toc-line"><span>III. Services</span><span>p.04</span></a>
                 <a href="#contact" className="toc-line"><span>IV. Contact</span><span>p.05</span></a>
               </aside>
             </div>
@@ -525,57 +517,57 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ═══════════════════ PRICING ═══════════════════ */}
-        <section id="pricing" className="py-24 md:py-36 border-t border-hairline bg-paper2">
-          <div className="max-w-[1360px] mx-auto px-6 md:px-10">
-            <div className="chapter mb-10 reveal">
-              <span className="chapter-rom">VII</span>
-              <span>Pricing {"\u00b7"} three ranges</span>
-            </div>
+        {/* ������������������� SERVICES ������������������� */}
+<section id="services" className="py-24 md:py-36 border-t border-hairline bg-paper2">
+  <div className="max-w-[1360px] mx-auto px-6 md:px-10">
+    <div className="chapter mb-10 reveal">
+      <span className="chapter-rom">VII</span>
+      <span>Services {"\u00b7"} what we build</span>
+    </div>
 
-            <div className="grid md:grid-cols-12 gap-10 mb-14 md:mb-20">
-              <h2 className="section-h md:col-span-7 max-w-[14ch] reveal">
-                The price is on <span className="italic text-coral">the page.</span>
-              </h2>
-              <p className="md:col-span-4 md:col-start-9 text-mute text-[16.5px] leading-[1.75] reveal" data-delay="200">
-                No &quot;request a quote&quot; theatre. No three-tier comparison games. Our work falls in three ranges depending on scope. Every project gets a fixed quote within 48 hours of the discovery call {"\u2014"} the price doesn&apos;t move once we agree.
-              </p>
-            </div>
+    <div className="grid md:grid-cols-12 gap-10 mb-14 md:mb-20">
+      <h2 className="section-h md:col-span-7 max-w-[14ch] reveal">
+        What we <span className="italic text-coral">build.</span>
+      </h2>
+      <p className="md:col-span-4 md:col-start-9 text-mute text-[16.5px] leading-[1.75] reveal" data-delay="200">
+        We don{"'"}t just build websites. We design and engineer the digital systems that solo professionals and boutique brands actually need {"\u2014"} from AI-powered assistants to internal dashboards to monthly optimization.
+      </p>
+    </div>
 
-            <div className="reveal" data-delay="100">
-              {pricingTiers.map((t) => (
-                <div key={t.name} className="range-row">
-                  <div>
-                    <h3 className="range-name font-display text-[40px] md:text-[52px] tracking-[-0.025em] leading-none">{t.name}</h3>
-                    <div className="font-mono text-[12px] tracking-[0.14em] uppercase text-mute mt-3">{t.price}</div>
-                  </div>
-                  <p className="text-ink/85 text-[16.5px] leading-[1.7] max-w-[52ch]">{t.desc}</p>
-                  <ul className="space-y-1.5 font-mono text-[10.5px] tracking-[0.14em] uppercase text-mute">
-                    {t.clients.map((c) => <li key={c}>{c}</li>)}
-                  </ul>
-                </div>
-              ))}
-            </div>
-
-            {/* Footer line + CTA link */}
-            <div className="text-center mt-16 md:mt-20">
-              <div className="font-mono text-[11px] tracking-[0.14em] uppercase text-mute">
-                Every quote is fixed {"\u00b7"} No hourly {"\u00b7"} No surprises {"\u00b7"} No retainer lock-ins
-              </div>
-              <a href="#contact" className="inline-flex items-center gap-2 mt-8 text-[15.5px] text-ink ulink">
-                Tell us about your project
-                <span aria-hidden="true">{"\u2192"}</span>
-              </a>
-            </div>
-
-            <div className="section-foot">
-              <span>VII. Pricing {"\u00b7"} three ranges</span>
-              <span>p. 07 / Triadict</span>
+    <div className="reveal" data-delay="100">
+      <div className="grid md:grid-cols-2 gap-x-16 gap-y-10">
+        {services.map((s) => (
+          <div key={s.num} className="flex gap-5">
+            <div className="font-mono text-[32px] md:text-[40px] text-coral/20 leading-none flex-shrink-0 w-[52px]">{s.num}</div>
+            <div>
+              <h3 className="font-display text-[22px] md:text-[26px] tracking-[-0.02em] leading-tight mb-2">{s.name}</h3>
+              <p className="text-mute text-[15px] leading-[1.7] max-w-[44ch]">{s.desc}</p>
             </div>
           </div>
-        </section>
+        ))}
+      </div>
+    </div>
 
-        {/* ═══════════════════ CONTACT ═══════════════════ */}
+    <div className="mt-16 md:mt-20 pt-10 border-t border-hairline text-center reveal" data-delay="200">
+      <p className="text-ink/85 text-[18px] md:text-[21px] font-display tracking-tight leading-[1.55] max-w-[52ch] mx-auto mb-4">
+        Every project is custom-quoted after a 30-minute discovery call.
+      </p>
+      <p className="text-mute text-[15.5px] leading-[1.75] max-w-[44ch] mx-auto mb-8">
+        No hourly billing. No tier games. No &quot;request a quote&quot; theatre. You see the number before you commit {"\u2014"} and the price doesn{"'"}t move once we agree.
+      </p>
+      <a href="#contact" className="inline-flex items-center gap-2 text-[15.5px] text-ink ulink">
+        Start a conversation
+        <span aria-hidden="true">{"\u2192"}</span>
+      </a>
+    </div>
+
+    <div className="section-foot">
+      <span>VII. Services {"\u00b7"} Triadict</span>
+      <span>p. 07 / Triadict</span>
+    </div>
+  </div>
+</section>
+{/* ═══════════════════ CONTACT ═══════════════════ */}
         <section id="contact" className="py-24 md:py-36 border-t border-hairline bg-ink text-paper relative overflow-hidden">
           {/* Decorative arcs */}
           <div className="absolute -top-40 -right-40 w-[700px] h-[700px] rounded-full opacity-[0.09]" style={{ background: "radial-gradient(circle, #E85A2F 0%, transparent 70%)" }} aria-hidden="true" />
@@ -699,8 +691,8 @@ export default function HomePage() {
             </div>
 
             <div className="section-foot eyebrow-dark border-t-paper/15 mt-20">
-              <span>IX. Contact {"\u00b7"} Triadict</span>
-              <span>p. 09 / Triadict</span>
+              <span>VIII. Contact {"\u00b7"} Triadict</span>
+              <span>p. 08 / Triadict</span>
             </div>
           </div>
         </section>
@@ -755,8 +747,8 @@ export default function HomePage() {
             <div className="md:col-span-2">
               <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-mute mb-4">Services</div>
               <ul className="space-y-2 text-[14.5px]">
-                <li><a href="#pricing" className="ulink">Pricing</a></li>
-                <li><a href="#contact" className="ulink">Start a project</a></li>
+                <li><a href="#services" className="ulink">Services</a></li>
+                <li><a href="#contact" className="ulink">Get a quote</a></li>
               </ul>
             </div>
 
