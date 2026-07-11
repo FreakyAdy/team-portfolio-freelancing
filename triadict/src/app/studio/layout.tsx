@@ -194,7 +194,7 @@ export default function StudioLayout({
         fixed top-0 left-0 h-full bg-paper border-r border-hairline z-40 flex flex-col overflow-hidden
         transition-all duration-300
         ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-        ${sidebarOpen ? "w-[120px]" : "w-[56px]"}>
+        ${sidebarOpen ? "w-[114px]" : "w-[52px]"}>
       `}>
         {/* Logo */}
         <div className="h-14 flex items-center px-4 border-b border-hairline">
@@ -232,11 +232,11 @@ export default function StudioLayout({
                         ${isActive ? "active" : ""}
                         ${!sidebarOpen ? "justify-center px-0" : ""}
                       `}
-                      title={!sidebarOpen ? item.label : undefined}
+                      title={item.label}
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <item.icon className="w-4 h-4 flex-shrink-0" />
-                      {sidebarOpen && <span>{item.label}</span>}
+                      {sidebarOpen && <span className="truncate">{item.label}</span>}
                     </Link>
                   )
                 })}
@@ -291,7 +291,7 @@ export default function StudioLayout({
         className={`
           transition-all duration-300 min-h-screen
           lg:pt-0 pt-16
-          ${sidebarOpen ? "lg:ml-[120px]" : "lg:ml-[56px]"}
+          ${sidebarOpen ? "lg:ml-[114px]" : "lg:ml-[52px]"}
         `}
       >
         {/* Top bar (desktop) */}
