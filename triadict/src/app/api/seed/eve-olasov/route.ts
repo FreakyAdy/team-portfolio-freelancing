@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { seedEveOlasov } from "@/../../scripts/seed-eve-olasov"
+import { seedEveOlasov } from "../../../../../scripts/seed-eve-olasov"
 
 export async function POST() {
   try {
