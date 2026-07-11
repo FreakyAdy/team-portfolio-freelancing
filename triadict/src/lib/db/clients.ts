@@ -98,27 +98,48 @@ export async function convertDealToClient(
   try {
     const supabase = await createClient()
 
-    // 1. Look up the deal with its company
+    // 1. Look up the deal
     const { data: deal, error: dealErr } = await supabase
       .from("deals")
-      .select("*, company:companies!deals_company_id_fkey(*)")
+      .select("*")
       .eq("id", dealId)
       .single()
 
     if (dealErr || !deal) return { error: "Deal not found" }
 
-    const company = deal.company as { org_id: string; name: string } | null
-    if (!company?.org_id) return { error: "Deal has no associated company" }
+    // 2. Create or find the client organization
+    const companyName = deal.company_name || deal.name
+    let clientOrgId: string
 
-    const orgId = company.org_id
+    const { data: existingOrg } = await supabase
+      .from("organizations")
+      .select("id")
+      .eq("name", companyName)
+      .eq("type", "client")
+      .maybeSingle()
 
-    // 2. Check if already a client
-    const existing = await supabase.from("clients").select("id").eq("org_id", orgId).maybeSingle()
+    if (existingOrg) {
+      clientOrgId = existingOrg.id
+    } else {
+      const slug = companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+      const { data: newOrg, error: orgErr } = await supabase
+        .from("organizations")
+        .insert({ name: companyName, slug, type: "client" })
+        .select("id")
+        .single()
+
+      if (orgErr || !newOrg) return { error: "Failed to create client organization" }
+      clientOrgId = newOrg.id
+    }
+
+    // 3. Check if already a client
+    const existing = await supabase.from("clients").select("id").eq("org_id", clientOrgId).maybeSingle()
     if (existing.data) return { error: "Company is already a client" }
 
-    // 3. Create client
+    // 4. Create client
     const { data: client, error: clientErr } = await supabase.from("clients").insert({
-      org_id: orgId,
+      org_id: clientOrgId,
+      primary_contact_id: deal.primary_contact_id || null,
       client_since: new Date().toISOString().split("T")[0],
       status: "active",
       health: "green",
@@ -128,19 +149,19 @@ export async function convertDealToClient(
 
     if (clientErr) return { error: clientErr.message }
 
-    // 4. Mark deal won
+    // 5. Mark deal won
     await supabase.from("deals").update({
       stage: "won",
       probability: 100,
       updated_at: new Date().toISOString(),
     }).eq("id", dealId)
 
-    // 5. Optionally create project
+    // 6. Optionally create project
     if (options?.createProject) {
-      const projectName = options.projectName || `${company.name} — Website`
+      const projectName = options.projectName || `${companyName} — Website`
       await supabase.from("projects").insert({
         org_id: "00000000-0000-0000-0000-000000000001",
-        client_org_id: orgId,
+        client_org_id: clientOrgId,
         deal_id: dealId,
         name: projectName,
         type: "website",
@@ -168,11 +189,11 @@ export async function convertDealToClient(
       }
     }
 
-    // 6. Log event
+    // 7. Log event
     await supabase.from("events").insert({
       org_id: "00000000-0000-0000-0000-000000000001",
       name: "deal_won",
-      payload: { deal_id: dealId, client_org_id: orgId, options },
+      payload: { deal_id: dealId, client_org_id: clientOrgId, options },
     })
 
     return client as Client

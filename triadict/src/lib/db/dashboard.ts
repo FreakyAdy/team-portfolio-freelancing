@@ -90,8 +90,7 @@ export async function getPipelineByStage() {
     const { data: deals, error } = await supabase.from("deals").select("*")
     if (error || !deals) return []
 
-    const stages = ["researching", "qualified", "outreach_ready", "contacted", "replied", "positive_reply",
-      "discovery_scheduled", "discovery_complete", "scoping", "proposal_sent", "negotiation", "verbal_yes", "won"]
+    const stages = ["lead", "researching", "outreach_ready", "engaged", "discovery_scheduled", "discovery_completed", "scoping", "proposal_sent", "negotiation", "agreement_sent", "awaiting_initial_payment", "won_kickoff", "won"]
 
     return stages.map(stage => ({
       stage,
@@ -100,8 +99,7 @@ export async function getPipelineByStage() {
     }))
   } catch {
     const deals = mockDeals
-    const stages = ["researching", "qualified", "outreach_ready", "contacted", "replied", "positive_reply",
-      "discovery_scheduled", "discovery_complete", "scoping", "proposal_sent", "negotiation", "verbal_yes", "won"]
+    const stages = ["lead", "researching", "outreach_ready", "engaged", "discovery_scheduled", "discovery_completed", "scoping", "proposal_sent", "negotiation", "agreement_sent", "awaiting_initial_payment", "won_kickoff", "won"]
     return stages.map(stage => ({
       stage,
       count: deals.filter(d => d.stage === stage).length,

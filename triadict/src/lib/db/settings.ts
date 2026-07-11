@@ -22,7 +22,7 @@ export async function getCurrentPerson(): Promise<(Person & { organization?: Org
   }
 }
 
-export async function updateProfile(input: { full_name?: string; email?: string; phone?: string; avatar_url?: string }): Promise<{ error?: string }> {
+export async function updateProfile(input: { full_name?: string; email?: string; avatar_url?: string }): Promise<{ error?: string }> {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -31,7 +31,6 @@ export async function updateProfile(input: { full_name?: string; email?: string;
     const updates: Record<string, unknown> = {}
     if (input.full_name) updates.full_name = input.full_name
     if (input.email) updates.email = input.email
-    if (input.phone) updates.phone = input.phone
     if (input.avatar_url) updates.avatar_url = input.avatar_url
 
     const { error } = await supabase.from("people").update(updates).eq("supabase_user_id", user.id)

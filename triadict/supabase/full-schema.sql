@@ -134,6 +134,7 @@ create table deals (
   recommended_service text,
 
   -- Relationship
+  source text,
   source_detail text,
   how_it_started text,
   relationship_context text,

@@ -246,7 +246,7 @@ export async function getPipelineSummary() {
     const lostCount = deals.filter(d => d.stage === "lost").length
     const closedCount = wonCount + lostCount
 
-    const stages = ["researching", "qualified", "outreach_ready", "contacted", "replied", "positive_reply", "discovery_scheduled", "discovery_complete", "scoping", "proposal_sent", "negotiation", "verbal_yes", "won", "lost", "nurture"]
+    const stages = ["lead", "researching", "outreach_ready", "engaged", "discovery_scheduled", "discovery_completed", "scoping", "proposal_sent", "negotiation", "agreement_sent", "awaiting_initial_payment", "won_kickoff", "won", "lost", "cancelled"]
     const byStage = stages.map(stage => ({
       stage,
       count: deals.filter(d => d.stage === stage).length,
@@ -270,7 +270,7 @@ export async function getPipelineSummary() {
     const wonCount = deals.filter(d => d.stage === "won").length
     const lostCount = deals.filter(d => d.stage === "lost").length
     const closedCount = wonCount + lostCount
-    const stages = ["researching", "qualified", "outreach_ready", "contacted", "replied", "positive_reply", "discovery_scheduled", "discovery_complete", "scoping", "proposal_sent", "negotiation", "verbal_yes", "won", "lost", "nurture"]
+    const stages = ["lead", "researching", "outreach_ready", "engaged", "discovery_scheduled", "discovery_completed", "scoping", "proposal_sent", "negotiation", "agreement_sent", "awaiting_initial_payment", "won_kickoff", "won", "lost", "cancelled"]
     const byStage = stages.map(stage => ({
       stage,
       count: deals.filter(d => d.stage === stage).length,

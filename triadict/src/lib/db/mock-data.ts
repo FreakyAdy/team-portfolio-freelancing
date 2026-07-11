@@ -209,7 +209,7 @@ const eveClient: Client & { organization?: Organization } = {
   client_since: now,
   communication_preference: "email",
   health: "green",
-  expansion_potential: "high — 3 websites + ongoing optimization + AI systems",
+  expansion_potential: "high",
   notes: "Potential flagship international client. Strong recurring revenue potential after launch.",
   service_interest: ["websites"],
   lifetime_value_one_time: 0,
