@@ -488,6 +488,7 @@ export interface Invoice {
   sent_at: string | null
   service_category: ServiceCategory | null
   adhoc_reason?: string
+  attachments: InvoiceAttachment[]
   created_at: string
 }
 
@@ -496,6 +497,15 @@ export interface InvoiceLineItem {
   quantity: number
   unit_price_cents: number
   amount_cents: number
+}
+
+export interface InvoiceAttachment {
+  id: string
+  name: string
+  type: string
+  size: number
+  dataUrl: string
+  uploadedAt: string
 }
 
 export interface Payment {

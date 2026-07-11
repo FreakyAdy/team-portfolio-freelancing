@@ -17,7 +17,8 @@ import {
   Bell,
   Search,
   Menu,
-  X
+  X,
+  ExternalLink
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { demoGetUser, demoLogout } from "@/lib/auth/demo"
@@ -25,7 +26,7 @@ import type { User } from "@supabase/supabase-js"
 
 const isDev = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-project')
 
-const navSections = [
+const navSections: { label: string; items: { href: string; label: string; icon: React.ComponentType<{ className?: string }>; external?: boolean }[] }[] = [
   {
     label: "Overview",
     items: [
@@ -43,6 +44,7 @@ const navSections = [
     items: [
       { href: "/studio/projects", label: "Projects", icon: FolderKanban },
       { href: "/studio/clients", label: "Clients", icon: Users },
+      { href: "/studio/documents", label: "Documents", icon: FileText },
     ],
   },
   {
@@ -57,6 +59,12 @@ const navSections = [
     items: [
       { href: "/studio/templates", label: "Templates", icon: FileText },
       { href: "/studio/knowledge", label: "Knowledge", icon: BookOpen },
+    ],
+  },
+  {
+    label: "",
+    items: [
+      { href: "/", label: "View site", icon: ExternalLink, external: true },
     ],
   },
 ]
@@ -168,7 +176,15 @@ export default function StudioLayout({
             <span className="font-display text-lg tracking-tight">Studio</span>
           </Link>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
+          <Link 
+            href="/"
+            target="_blank"
+            className="flex items-center gap-1 px-2 py-1.5 text-xs text-mute hover:text-ink transition-colors rounded"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Site</span>
+          </Link>
           <button className="w-10 h-10 flex items-center justify-center relative">
             <Bell className="w-5 h-5 text-mute" />
             <span className="absolute top-2 right-2 w-2 h-2 bg-coral rounded-full"></span>
@@ -232,6 +248,7 @@ export default function StudioLayout({
                     <Link
                       key={item.href}
                       href={item.href}
+                      {...(item.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                       className={`
                         sidebar-link relative
                         ${isActive ? "active" : ""}

@@ -1,19 +1,19 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   ArrowLeft, FileText, Building2, DollarSign, Calendar,
   MoreHorizontal, AlertCircle, CheckCircle2, XCircle, Send, Download,
-  Edit3, ExternalLink,
+  Edit3, ExternalLink, Upload, Trash2, Image,
 } from "lucide-react"
 import { getInvoice, updateInvoiceStatus } from "@/lib/db/invoices"
 import { listPayments } from "@/lib/db/payments"
 import { Modal } from "@/components/ui/Modal"
 import { LoadingState } from "@/components/ui/LoadingState"
 import { SelectField } from "@/components/ui/SelectField"
-import type { Invoice, Payment } from "@/types/database"
+import type { Invoice, Payment, InvoiceAttachment } from "@/types/database"
 
 const statusColors: Record<string, string> = {
   draft: "bg-mute/10 text-mute",
@@ -43,6 +43,8 @@ export default function InvoiceDetailPage() {
   const [showStatusModal, setShowStatusModal] = useState(false)
   const [statusTarget, setStatusTarget] = useState("")
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [attachments, setAttachments] = useState<InvoiceAttachment[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -56,6 +58,52 @@ export default function InvoiceDetailPage() {
   }, [invoiceId])
 
   useEffect(() => { loadData() }, [loadData])
+
+  useEffect(() => {
+    const stored = localStorage.getItem(`invoice-${invoiceId}-attachments`)
+    if (stored) {
+      try { setAttachments(JSON.parse(stored)) } catch {}
+    }
+  }, [invoiceId])
+
+  const saveAttachments = (files: InvoiceAttachment[]) => {
+    setAttachments(files)
+    localStorage.setItem(`invoice-${invoiceId}-attachments`, JSON.stringify(files))
+  }
+
+  const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files) return
+
+    Array.from(files).forEach(file => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        const newAttachment: InvoiceAttachment = {
+          id: crypto.randomUUID(),
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          dataUrl: reader.result as string,
+          uploadedAt: new Date().toISOString(),
+        }
+        const updated = [...attachments, newAttachment]
+        saveAttachments(updated)
+      }
+      reader.readAsDataURL(file)
+    })
+    e.target.value = ""
+  }, [attachments])
+
+  const handleDeleteAttachment = (id: string) => {
+    const updated = attachments.filter(a => a.id !== id)
+    saveAttachments(updated)
+  }
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  }
 
   const handleStatusChange = async (newStatus: string) => {
     await updateInvoiceStatus(invoiceId, newStatus)
@@ -191,6 +239,65 @@ export default function InvoiceDetailPage() {
                   </tr>
                 </tfoot>
               </table>
+            )}
+          </div>
+
+          <div className="bg-paper border border-hairline rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display text-lg text-ink">Attachments</h3>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm bg-paper2 border border-hairline rounded-lg hover:border-coral/30 transition-colors"
+              >
+                <Upload className="w-4 h-4" />
+                Upload
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,.png,.jpg,.jpeg,.webp"
+                multiple
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </div>
+            {attachments.length === 0 ? (
+              <p className="text-sm text-mute">No files attached. Upload a PDF or image of this invoice.</p>
+            ) : (
+              <div className="space-y-2">
+                {attachments.map((file) => (
+                  <div key={file.id} className="flex items-center gap-3 p-3 bg-paper2 rounded-lg group">
+                    {file.type.startsWith("image/") ? (
+                      <div className="w-10 h-10 rounded overflow-hidden bg-hairline/30 flex-shrink-0">
+                        <img src={file.dataUrl} alt={file.name} className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-10 h-10 rounded bg-coral/10 flex items-center justify-center flex-shrink-0">
+                        <FileText className="w-5 h-5 text-coral" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-ink truncate">{file.name}</p>
+                      <p className="text-xs text-mute">{formatFileSize(file.size)}</p>
+                    </div>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <a
+                        href={file.dataUrl}
+                        download={file.name}
+                        className="w-8 h-8 flex items-center justify-center text-mute hover:text-ink transition-colors rounded"
+                      >
+                        <Download className="w-4 h-4" />
+                      </a>
+                      <button
+                        onClick={() => handleDeleteAttachment(file.id)}
+                        className="w-8 h-8 flex items-center justify-center text-mute hover:text-red-500 transition-colors rounded"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>
