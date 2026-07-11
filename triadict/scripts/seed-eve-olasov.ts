@@ -23,7 +23,6 @@ export async function seedEveOlasov() {
   const { data: company, error: companyErr } = await supabase
     .from("organizations")
     .upsert({
-      id: "eve-olasov-company-001",
       name: "Eve Olasov Real Estate",
       slug: "eve-olasov-real-estate",
       type: "client",
@@ -49,7 +48,6 @@ export async function seedEveOlasov() {
   const { data: contact, error: contactErr } = await supabase
     .from("people")
     .upsert({
-      id: "eve-olasov-contact-001",
       org_id: company.id,
       email: "eve@olasov.com", // placeholder — update with real email
       full_name: "Eve Olasov",
@@ -68,7 +66,6 @@ export async function seedEveOlasov() {
   const { data: deal, error: dealErr } = await supabase
     .from("deals")
     .upsert({
-      id: "eve-olasov-deal-001",
       org_id: ORG_ID,
       name: "Eve Olasov – Multi-Site Website Modernization",
       stage: "discovery_scheduled",
