@@ -190,14 +190,16 @@ export default function StudioLayout({
       )}
 
       {/* Sidebar */}
-      <aside className={`
-        fixed top-0 left-0 h-full bg-paper border-r border-hairline z-40 flex flex-col overflow-hidden
-        transition-all duration-300
-        ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-        ${sidebarOpen ? "w-[114px]" : "w-[52px]"}>
-      `}>
+      <aside
+        className={`
+          fixed top-0 left-0 h-full bg-paper border-r border-hairline z-40 flex flex-col overflow-hidden
+          transition-[width,transform] duration-300
+          ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+          ${sidebarOpen ? "w-60" : "w-16 max-lg:w-60"}
+        `}
+      >
         {/* Logo */}
-        <div className="h-14 flex items-center px-4 border-b border-hairline">
+        <div className="h-14 flex items-center px-3 border-b border-hairline shrink-0">
           <Link href="/studio/dashboard" className="flex items-center gap-2">
             <img 
               src="/brand/logo.jpeg" 
@@ -246,7 +248,7 @@ export default function StudioLayout({
         </nav>
 
         {/* Bottom section */}
-        <div className="p-2 border-t border-hairline overflow-hidden shrink-0">
+        <div className="px-2 py-3 border-t border-hairline overflow-hidden shrink-0">
           {/* Settings */}
           <Link
             href="/studio/settings"
@@ -289,9 +291,8 @@ export default function StudioLayout({
       <main 
         id="main"
         className={`
-          transition-all duration-300 min-h-screen
-          lg:pt-0 pt-16
-          ${sidebarOpen ? "lg:ml-[114px]" : "lg:ml-[52px]"}
+          transition-[margin] duration-300 min-h-screen min-w-0 pt-16 lg:pt-0
+          ${sidebarOpen ? "lg:ml-60" : "lg:ml-16"}
         `}
       >
         {/* Top bar (desktop) */}
