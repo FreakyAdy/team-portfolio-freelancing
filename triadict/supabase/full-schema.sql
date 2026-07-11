@@ -193,8 +193,7 @@ create table deals (
     'appointment_systems', 'ai_knowledge', 'custom_dashboards'
   )),
   technical_risk text check (technical_risk in (
-    'clean_slate', 'mild_legacy', 'deep_legacy', 'cms_only',
-    'platform_lock', 'migration_required'
+    'low', 'medium', 'high'
   )),
   seo_risk text check (seo_risk in (
     'greenfield', 'low', 'medium', 'high', 'very_high', 'rebuild_with_migration'
