@@ -15,7 +15,6 @@ import {
 } from "lucide-react"
 import { listDeals, createDeal, updateDealStage, markDealLost, getPipelineSummary } from "@/lib/db/deals"
 import { listCompanies } from "@/lib/db/companies"
-import { listTeamMembers } from "@/lib/db/contacts"
 import { convertDealToClient } from "@/lib/db/clients"
 import { Modal } from "@/components/ui/Modal"
 import { EmptyState } from "@/components/ui/EmptyState"
@@ -77,7 +76,7 @@ export default function DealsPage() {
   const [activeView, setActiveView] = useState("all")
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [companyOptions, setCompanyOptions] = useState<{ value: string; label: string }[]>([])
-  const [teamOptions, setTeamOptions] = useState<{ value: string; label: string }[]>([])
+
   const [dealMenuOpen, setDealMenuOpen] = useState<string | null>(null)
   const [convertDeal, setConvertDeal] = useState<Deal | null>(null)
   const [showConvertModal, setShowConvertModal] = useState(false)
@@ -90,11 +89,12 @@ export default function DealsPage() {
     projectName: "",
     sendOnboarding: true,
   })
+  const [convertDealData, setConvertDealData] = useState<{ client_name: string; value_cents: number; service_category?: string; description?: string } | null>(null)
   const [showLostNote, setShowLostNote] = useState(false)
 
   const [formData, setFormData] = useState<CreateDealInput>({
     name: "", value_cents: 0, probability: 50,
-    source: "", source_detail: "", how_it_started: "", assigned_to: "", notes: "",
+    source: "", source_detail: "", how_it_started: "", assigned_to: "", notes: "", company_name: "",
   })
 
   const loadData = useCallback(async () => {
@@ -104,10 +104,7 @@ export default function DealsPage() {
     const hideStages = savedViews.find(v => v.id === activeView)?.hide
     const dealsData = await listDeals({ stage: filterStage !== "all" ? filterStage : undefined, search: searchQuery })
     const summaryData = await getPipelineSummary()
-    const [companies, team] = await Promise.all([
-      listCompanies(),
-      listTeamMembers(),
-    ])
+    const companies = await listCompanies()
     let filtered = dealsData
     if (hideStages) {
       filtered = dealsData.filter(d => !hideStages.includes(d.stage))
@@ -115,7 +112,6 @@ export default function DealsPage() {
     setDeals(filtered)
     setSummary(summaryData)
     setCompanyOptions(companies.map(c => ({ value: c.id, label: c.name })))
-    setTeamOptions(team.map(t => ({ value: t.id, label: t.full_name || t.email })))
     setLoading(false)
   }, [activeView, searchQuery])
 
@@ -128,16 +124,23 @@ export default function DealsPage() {
       return
     }
     setShowCreateModal(false)
-    setFormData({ name: "", value_cents: 0, probability: 50, source: "", source_detail: "", how_it_started: "", assigned_to: "", notes: "", service_category: undefined, technical_risk: undefined, seo_risk: undefined })
+    setFormData({ name: "", value_cents: 0, probability: 50, source: "", source_detail: "", how_it_started: "", assigned_to: "", notes: "", service_category: undefined, technical_risk: undefined, seo_risk: undefined, company_name: "" })
     loadData()
   }
 
   const handleStageChange = async (dealId: string, newStage: string) => {
     if (newStage === "won_kickoff") {
       const deal = deals.find(d => d.id === dealId)
+      if (deal && !deal.service_category) {
+        if (!confirm(`${deal.name} has no service category set. The project won't get default workstreams. Continue anyway?`)) {
+          setDealMenuOpen(null)
+          return
+        }
+      }
       if (deal) {
         setConvertDeal(deal)
         setConvertData({ createProject: true, projectName: `${deal.name} — Website`, sendOnboarding: true })
+        setConvertDealData({ client_name: deal.company_name || "", value_cents: deal.value_cents, service_category: deal.service_category || undefined, description: deal.notes || "" })
         setShowConvertModal(true)
       }
       return
@@ -161,6 +164,8 @@ export default function DealsPage() {
       createProject: convertData.createProject,
       projectName: convertData.projectName,
       sendOnboarding: convertData.sendOnboarding,
+      dealValue: convertDealData?.value_cents,
+      serviceCategory: convertDealData?.service_category,
     })
     if ("error" in result) {
       alert(result.error)
@@ -186,9 +191,16 @@ export default function DealsPage() {
   const handleMoveToStage = async (dealId: string, newStage: string) => {
     if (newStage === "won_kickoff") {
       const deal = deals.find(d => d.id === dealId)
+      if (deal && !deal.service_category) {
+        if (!confirm(`${deal.name} has no service category set. The project won't get default workstreams. Continue anyway?`)) {
+          setDealMenuOpen(null)
+          return
+        }
+      }
       if (deal) {
         setConvertDeal(deal)
         setConvertData({ createProject: true, projectName: `${deal.name} — Website`, sendOnboarding: true })
+        setConvertDealData({ client_name: deal.company_name || "", value_cents: deal.value_cents, service_category: deal.service_category || undefined, description: deal.notes || "" })
         setShowConvertModal(true)
       }
       return
@@ -459,6 +471,17 @@ export default function DealsPage() {
               </div>
             </label>
 
+            {convertData.createProject && convertDealData && (
+              <div className="bg-paper2 rounded-lg p-4 text-sm">
+                <p className="text-xs font-mono uppercase tracking-wider text-mute mb-2">Project will be pre-filled from this deal</p>
+                <div className="space-y-1">
+                  <p className="text-ink">Client: <span className="font-medium">{convertDealData.client_name || "—"}</span></p>
+                  <p className="text-ink">Value: <span className="font-medium">${(convertDealData.value_cents / 100).toLocaleString()}</span></p>
+                  {convertDealData.service_category && <p className="text-ink">Category: <span className="font-medium">{convertDealData.service_category.replace(/_/g, " ")}</span></p>}
+                </div>
+              </div>
+            )}
+
             <div className="flex justify-end gap-3 pt-2 border-t border-hairline">
               <button
                 onClick={() => { setShowConvertModal(false); setConvertDeal(null) }}
@@ -518,6 +541,7 @@ export default function DealsPage() {
 
       <Modal open={showCreateModal} onClose={() => setShowCreateModal(false)} title="New Deal">
         <div className="space-y-4">
+          <p className="text-xs text-mute">Quick add — fill in full details on the deal page after saving.</p>
           <TextField label="Deal Name" value={formData.name} onChange={(v) => setFormData({ ...formData, name: v })} required />
           <SelectField
             label="Company"
@@ -525,6 +549,12 @@ export default function DealsPage() {
             onChange={(v) => setFormData({ ...formData, company_id: v })}
             options={companyOptions}
             placeholder="Select company (optional)"
+          />
+          <TextField
+            label="New Client Name"
+            value={formData.company_name || ""}
+            onChange={(v) => setFormData({ ...formData, company_name: v })}
+            placeholder="Or type a new client name (creates on save)"
           />
           <div>
             <label className="block text-sm font-medium mb-1.5">Value (cents) <span className="text-coral">*</span></label>
@@ -536,18 +566,7 @@ export default function DealsPage() {
             />
             <p className="text-xs text-mute mt-1">${(formData.value_cents / 100).toFixed(2)}</p>
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1.5">Probability (%) <span className="text-coral">*</span></label>
-            <input
-              type="number"
-              min={0} max={100}
-              value={formData.probability}
-              onChange={(e) => setFormData({ ...formData, probability: parseInt(e.target.value) || 0 })}
-              className="w-full h-10 px-3 bg-paper border border-hairline rounded-lg text-sm focus:outline-none focus:border-coral transition-colors"
-            />
-          </div>
           <TextField label="Source" value={formData.source || ""} onChange={(v) => setFormData({ ...formData, source: v })} placeholder="e.g. Cold email, Referral, Upwork" />
-          <TextField label="Source Detail" value={formData.source_detail || ""} onChange={(v) => setFormData({ ...formData, source_detail: v })} placeholder="e.g. Deep Research + Custom Demo" />
           <div>
             <label className="block text-sm font-medium mb-1.5">Service Category</label>
             <select
@@ -600,15 +619,7 @@ export default function DealsPage() {
               <option value="rebuild_with_migration">Rebuild with Migration</option>
             </select>
           </div>
-          <TextField label="How It Started" value={formData.how_it_started || ""} onChange={(v) => setFormData({ ...formData, how_it_started: v })} multiline placeholder="Brief story of how this opportunity began" />
-          <SelectField
-            label="Assigned To"
-            value={formData.assigned_to || ""}
-            onChange={(v) => setFormData({ ...formData, assigned_to: v })}
-            options={teamOptions}
-            placeholder="Select team member"
-          />
-          <TextField label="Notes" value={formData.notes || ""} onChange={(v) => setFormData({ ...formData, notes: v })} multiline />
+
           <div className="flex justify-end gap-3 pt-2">
             <button onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-sm text-mute hover:text-ink transition-colors">Cancel</button>
             <button onClick={handleCreate} disabled={!formData.name} className="px-4 py-2 text-sm bg-ink text-paper rounded-lg hover:bg-charcoal transition-colors disabled:opacity-50">

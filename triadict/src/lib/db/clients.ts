@@ -1,7 +1,28 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import type { Client, ClientStatus, ClientHealth, CreateClientInput, Organization } from "@/types/database"
+import type { Client, ClientStatus, ClientHealth, CreateClientInput, Organization, ServiceCategory } from "@/types/database"
+
+function getDefaultWorkstreams(serviceCategory?: ServiceCategory | null): string[] {
+  switch (serviceCategory) {
+    case "websites":
+      return ["Design", "Development", "Content", "Launch"]
+    case "monthly_optimization":
+      return ["Setup", "Monitoring", "Reporting"]
+    case "ai_agents":
+    case "ai_email":
+    case "lead_response":
+    case "crm_automation":
+    case "whatsapp_sms":
+    case "appointment_systems":
+    case "ai_knowledge":
+      return ["Discovery", "Build", "Integration", "Testing"]
+    case "custom_dashboards":
+      return ["Discovery", "Design", "Development", "Launch"]
+    default:
+      return ["Design", "Development", "Content", "Launch"]
+  }
+}
 
 export async function listClients(params?: {
   status?: string
@@ -68,7 +89,7 @@ export async function addClient(input: CreateClientInput): Promise<Client | { er
 
 export async function convertDealToClient(
   dealId: string,
-  options?: { createProject?: boolean; projectName?: string; sendOnboarding?: boolean }
+  options?: { createProject?: boolean; projectName?: string; sendOnboarding?: boolean; dealValue?: number; serviceCategory?: string }
 ): Promise<Client | { error: string }> {
   try {
     const supabase = await createClient()
@@ -119,10 +140,28 @@ export async function convertDealToClient(
         deal_id: dealId,
         name: projectName,
         type: "website",
-        contract_value_cents: deal.value_cents || 0,
+        service_category: options.serviceCategory || deal.service_category || null,
+        contract_value_cents: options.dealValue ?? deal.value_cents ?? 0,
         status: "onboarding",
         phase: "discovery",
       })
+
+      // Create default workstreams on the deal if none exist
+      const { count } = await supabase.from("workstreams")
+        .select("id", { count: "exact", head: true })
+        .eq("deal_id", dealId)
+
+      if (!count) {
+        const category = options.serviceCategory || deal.service_category
+        const labels = getDefaultWorkstreams(category)
+        const workstreams = labels.map((label, i) => ({
+          deal_id: dealId,
+          label,
+          status: "needs_discovery" as const,
+          sort_order: i,
+        }))
+        await supabase.from("workstreams").insert(workstreams)
+      }
     }
 
     // 6. Log event

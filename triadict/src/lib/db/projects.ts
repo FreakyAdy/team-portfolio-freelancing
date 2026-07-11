@@ -1,7 +1,28 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import type { Project, CreateProjectInput } from "@/types/database"
+import type { Project, CreateProjectInput, ServiceCategory } from "@/types/database"
+
+function getDefaultWorkstreams(serviceCategory?: ServiceCategory): string[] {
+  switch (serviceCategory) {
+    case "websites":
+      return ["Design", "Development", "Content", "Launch"]
+    case "monthly_optimization":
+      return ["Setup", "Monitoring", "Reporting"]
+    case "ai_agents":
+    case "ai_email":
+    case "lead_response":
+    case "crm_automation":
+    case "whatsapp_sms":
+    case "appointment_systems":
+    case "ai_knowledge":
+      return ["Discovery", "Build", "Integration", "Testing"]
+    case "custom_dashboards":
+      return ["Discovery", "Design", "Development", "Launch"]
+    default:
+      return ["Design", "Development", "Content", "Launch"]
+  }
+}
 
 export async function listProjects(params?: {
   status?: string
@@ -64,6 +85,7 @@ export async function createProject(input: CreateProjectInput): Promise<Project 
       deal_id: input.deal_id || null,
       name: input.name,
       type: input.type,
+      service_category: input.service_category || null,
       description: input.description || null,
       contract_value_cents: input.contract_value_cents || 0,
       status: "onboarding",
@@ -76,6 +98,24 @@ export async function createProject(input: CreateProjectInput): Promise<Project 
     }).select().single()
 
     if (error) return { error: error.message }
+
+    // Create default workstreams on the deal if none exist yet
+    if (input.deal_id) {
+      const { count } = await supabase.from("workstreams")
+        .select("id", { count: "exact", head: true })
+        .eq("deal_id", input.deal_id)
+
+      if (!count) {
+        const labels = getDefaultWorkstreams(input.service_category)
+        const workstreams = labels.map((label, i) => ({
+          deal_id: input.deal_id!,
+          label,
+          status: "needs_discovery" as const,
+          sort_order: i,
+        }))
+        await supabase.from("workstreams").insert(workstreams)
+      }
+    }
 
     await supabase.from("events").insert({
       org_id: "00000000-0000-0000-0000-000000000001",

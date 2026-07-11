@@ -346,41 +346,29 @@ export default function StudioDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Link 
           href="/studio/deals"
-          className="flex items-center gap-4 p-4 bg-paper border border-hairline rounded-xl hover:border-coral/30 transition-colors group"
+          className="flex items-center gap-4 p-5 bg-paper border border-hairline rounded-xl hover:border-coral/30 transition-colors group"
         >
           <div className="w-12 h-12 rounded-xl bg-coral/10 flex items-center justify-center group-hover:bg-coral/20 transition-colors">
             <TrendingUp className="w-6 h-6 text-coral" />
           </div>
           <div>
-            <h3 className="font-sans font-medium text-ink">View Pipeline</h3>
-            <p className="text-sm text-mute">{metrics[0]?.value || "$0"} in pipeline</p>
+            <h3 className="font-sans font-medium text-ink">New Deal</h3>
+            <p className="text-sm text-mute">Add a lead or opportunity to the pipeline</p>
           </div>
         </Link>
         <Link 
-          href="/studio/invoices"
-          className="flex items-center gap-4 p-4 bg-paper border border-hairline rounded-xl hover:border-gold/30 transition-colors group"
+          href="/studio/clients"
+          className="flex items-center gap-4 p-5 bg-paper border border-hairline rounded-xl hover:border-gold/30 transition-colors group"
         >
           <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
             <FileText className="w-6 h-6 text-gold" />
           </div>
           <div>
-            <h3 className="font-sans font-medium text-ink">Send Invoice</h3>
-            <p className="text-sm text-mute">{metrics[2]?.value || "$0"} outstanding</p>
-          </div>
-        </Link>
-        <Link 
-          href="/studio/knowledge"
-          className="flex items-center gap-4 p-4 bg-paper border border-hairline rounded-xl hover:border-inkblue/30 transition-colors group"
-        >
-          <div className="w-12 h-12 rounded-xl bg-inkblue/10 flex items-center justify-center group-hover:bg-inkblue/20 transition-colors">
-            <CheckCircle2 className="w-6 h-6 text-inkblue" />
-          </div>
-          <div>
-            <h3 className="font-sans font-medium text-ink">Knowledge Base</h3>
-            <p className="text-sm text-mute">Processes & playbooks</p>
+            <h3 className="font-sans font-medium text-ink">New Client</h3>
+            <p className="text-sm text-mute">Add a client directly (no deal trail needed)</p>
           </div>
         </Link>
       </div>

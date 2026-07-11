@@ -27,6 +27,7 @@ const typeColors: Record<string, string> = {
   final: "bg-forest/10 text-forest",
   retainer: "bg-coral/10 text-coral",
   change_order: "bg-mute/10 text-mute",
+  ad_hoc: "bg-coral/10 text-coral",
 }
 
 export default function InvoicesPage() {
@@ -37,7 +38,7 @@ export default function InvoicesPage() {
   const [clientOptions, setClientOptions] = useState<{ value: string; label: string }[]>([])
 
   const [formData, setFormData] = useState({
-    client_org_id: "", type: "advance", amount_cents: 0, due_date: "",
+    client_org_id: "", type: "advance", amount_cents: 0, due_date: "", adhoc_reason: "",
     line_items: [{ description: "", quantity: 1, unit_price_cents: 0, amount_cents: 0 }],
   })
 
@@ -60,7 +61,7 @@ export default function InvoicesPage() {
     const result = await createInvoice(formData as CreateInvoiceInput)
     if ("error" in result) { alert(result.error); return }
     setShowCreateModal(false)
-    setFormData({ client_org_id: "", type: "advance", amount_cents: 0, due_date: "", line_items: [{ description: "", quantity: 1, unit_price_cents: 0, amount_cents: 0 }] })
+    setFormData({ client_org_id: "", type: "advance", amount_cents: 0, due_date: "", adhoc_reason: "", line_items: [{ description: "", quantity: 1, unit_price_cents: 0, amount_cents: 0 }] })
     loadData()
   }
 
@@ -152,7 +153,11 @@ export default function InvoicesPage() {
             { value: "final", label: "Final" },
             { value: "retainer", label: "Retainer" },
             { value: "change_order", label: "Change Order" },
+            { value: "ad_hoc", label: "Ad Hoc" },
           ]} />
+          {formData.type === "ad_hoc" && (
+            <TextField label="Why ad-hoc?" value={formData.adhoc_reason || ""} onChange={(v) => setFormData({ ...formData, adhoc_reason: v })} required placeholder="e.g. Small out-of-scope fix, rush request" />
+          )}
           <div>
             <label className="block text-sm font-medium mb-1.5">Amount (cents) <span className="text-coral">*</span></label>
             <input
@@ -166,7 +171,7 @@ export default function InvoicesPage() {
           <TextField label="Due Date" value={formData.due_date} onChange={(v) => setFormData({ ...formData, due_date: v })} type="date" />
           <div className="flex justify-end gap-3 pt-2">
             <button onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-sm text-mute hover:text-ink transition-colors">Cancel</button>
-            <button onClick={handleCreate} disabled={!formData.client_org_id} className="px-4 py-2 text-sm bg-ink text-paper rounded-lg hover:bg-charcoal transition-colors disabled:opacity-50">
+            <button onClick={handleCreate} disabled={!formData.client_org_id || (formData.type === "ad_hoc" && !formData.adhoc_reason)} className="px-4 py-2 text-sm bg-ink text-paper rounded-lg hover:bg-charcoal transition-colors disabled:opacity-50">
               Create Invoice
             </button>
           </div>

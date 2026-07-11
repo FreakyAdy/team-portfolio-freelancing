@@ -16,7 +16,7 @@ export type ProjectPhase = 'discovery' | 'design' | 'build' | 'qa' | 'launch' | 
 export type ApprovalType = 'design' | 'content' | 'scope' | 'final' | 'launch'
 export type ApprovalStatus = 'pending' | 'approved' | 'rejected' | 'changes_requested'
 export type InvoiceStatus = 'draft' | 'sent' | 'viewed' | 'paid' | 'overdue' | 'cancelled'
-export type InvoiceType = 'advance' | 'milestone' | 'final' | 'retainer' | 'change_order'
+export type InvoiceType = 'advance' | 'milestone' | 'final' | 'retainer' | 'change_order' | 'ad_hoc'
 export type PaymentStatus = 'pending' | 'cleared' | 'failed' | 'refunded'
 export type PaymentMethod = 'stripe' | 'wise' | 'bank' | 'manual'
 export type FeedbackPriority = 'critical' | 'high' | 'medium' | 'low'
@@ -487,6 +487,7 @@ export interface Invoice {
   line_items: InvoiceLineItem[]
   sent_at: string | null
   service_category: ServiceCategory | null
+  adhoc_reason?: string
   created_at: string
 }
 
@@ -791,6 +792,7 @@ export interface CreateProjectInput {
   client_org_id: string
   deal_id?: string
   type: Project['type']
+  service_category?: ServiceCategory
   description?: string
   contract_value_cents?: number
   start_date?: string
@@ -854,6 +856,7 @@ export interface CreateInvoiceInput {
   due_date?: string
   line_items: InvoiceLineItem[]
   service_category?: ServiceCategory
+  adhoc_reason?: string
 }
 
 export interface CreatePaymentInput {

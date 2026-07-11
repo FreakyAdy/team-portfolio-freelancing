@@ -15,7 +15,6 @@ import {
 } from "lucide-react"
 import { listProjects, createProject, updateProjectPhase } from "@/lib/db/projects"
 import { listCompanies } from "@/lib/db/companies"
-import { listTeamMembers } from "@/lib/db/contacts"
 import { listTasks } from "@/lib/db/tasks"
 import { Modal } from "@/components/ui/Modal"
 import { EmptyState } from "@/components/ui/EmptyState"
@@ -53,26 +52,23 @@ export default function ProjectsPage() {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list")
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [clientOptions, setClientOptions] = useState<{ value: string; label: string }[]>([])
-  const [teamOptions, setTeamOptions] = useState<{ value: string; label: string }[]>([])
+  const [teamOptions] = useState<{ value: string; label: string }[]>([])
   const [taskCounts, setTaskCounts] = useState<Record<string, { total: number; completed: number }>>({})
 
   const [formData, setFormData] = useState({
     name: "", client_org_id: "", type: "standard_site",
     description: "", contract_value_cents: 0,
-    project_manager_id: "", assigned_to: "",
   })
 
   const loadData = useCallback(async () => {
     setLoading(true)
     const status = activeStatus === "all" ? undefined : activeStatus
-    const [projectsData, companies, team] = await Promise.all([
+    const [projectsData, companies] = await Promise.all([
       listProjects({ status, search: searchQuery }),
       listCompanies(),
-      listTeamMembers(),
     ])
     setProjects(projectsData)
     setClientOptions(companies.filter(c => c.type === "client" || true).map(c => ({ value: c.id, label: c.name })))
-    setTeamOptions(team.map(t => ({ value: t.id, label: t.full_name || t.email })))
 
     const counts: Record<string, { total: number; completed: number }> = {}
     for (const p of projectsData) {
@@ -92,7 +88,7 @@ export default function ProjectsPage() {
     const result = await createProject(formData as CreateProjectInput)
     if ("error" in result) { alert(result.error); return }
     setShowCreateModal(false)
-    setFormData({ name: "", client_org_id: "", type: "standard_site", description: "", contract_value_cents: 0, project_manager_id: "", assigned_to: "" })
+    setFormData({ name: "", client_org_id: "", type: "standard_site", description: "", contract_value_cents: 0 })
     loadData()
   }
 
@@ -332,8 +328,6 @@ export default function ProjectsPage() {
             />
             <p className="text-xs text-mute mt-1">${(formData.contract_value_cents / 100).toFixed(2)}</p>
           </div>
-          <SelectField label="Project Manager" value={formData.project_manager_id} onChange={(v) => setFormData({ ...formData, project_manager_id: v })} options={teamOptions} placeholder="Select" />
-          <SelectField label="Assigned To" value={formData.assigned_to} onChange={(v) => setFormData({ ...formData, assigned_to: v })} options={teamOptions} placeholder="Select" />
           <div className="flex justify-end gap-3 pt-2">
             <button onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-sm text-mute hover:text-ink transition-colors">Cancel</button>
             <button onClick={handleCreate} disabled={!formData.name || !formData.client_org_id} className="px-4 py-2 text-sm bg-ink text-paper rounded-lg hover:bg-charcoal transition-colors disabled:opacity-50">

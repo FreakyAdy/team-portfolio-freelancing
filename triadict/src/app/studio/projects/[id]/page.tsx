@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   ArrowLeft, FolderKanban, Building2, Target, ClipboardList,
-  MoreHorizontal, AlertCircle, Calendar, DollarSign, User,
+  MoreHorizontal, AlertCircle, AlertTriangle, Calendar, DollarSign, User,
   CheckCircle2, XCircle, Plus, ChevronDown,
 } from "lucide-react"
 import { getProject, updateProject, updateProjectPhase, deleteProject } from "@/lib/db/projects"
@@ -92,6 +92,11 @@ export default function ProjectDetailPage() {
   }
 
   const handleTaskStatusChange = async (taskId: string, status: string) => {
+    if (status === "in_progress" && project?.deal && !project.deal.payment_gate_status?.initial_payment_received) {
+      if (!confirm("Initial payment has not been recorded for this project. Continue anyway?")) {
+        return
+      }
+    }
     await updateTask({ id: taskId, status } as Parameters<typeof updateTask>[0])
     loadData()
   }
@@ -284,6 +289,12 @@ export default function ProjectDetailPage() {
               <Plus className="w-3.5 h-3.5" /> Add Task
             </button>
           </div>
+          {project?.deal && !project.deal.payment_gate_status?.initial_payment_received && (
+            <div className="mx-5 mt-4 p-3 bg-gold/10 border border-gold/20 rounded-lg flex items-center gap-2 text-sm text-gold">
+              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+              Initial payment not yet recorded — tasks can still be managed but production should wait.
+            </div>
+          )}
           {tasks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <ClipboardList className="w-8 h-8 text-mute mb-3" />

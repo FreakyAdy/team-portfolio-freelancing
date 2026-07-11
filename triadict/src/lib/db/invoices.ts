@@ -46,6 +46,7 @@ export async function createInvoice(input: CreateInvoiceInput): Promise<Invoice 
       status: "draft",
       due_date: input.due_date || null,
       line_items: input.line_items,
+      ...(input.adhoc_reason ? { adhoc_reason: input.adhoc_reason } : {}),
     }).select().single()
 
     if (error) return { error: error.message }
