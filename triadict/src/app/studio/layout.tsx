@@ -194,7 +194,7 @@ export default function StudioLayout({
         fixed top-0 left-0 h-full bg-paper border-r border-hairline z-40 flex flex-col overflow-hidden
         transition-all duration-300
         ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-        ${sidebarOpen ? "w-[160px]" : "w-[56px]"}>
+        ${sidebarOpen ? "w-[120px]" : "w-[56px]"}>
       `}>
         {/* Logo */}
         <div className="h-14 flex items-center px-4 border-b border-hairline">
@@ -270,7 +270,6 @@ export default function StudioLayout({
             {sidebarOpen && (
               <div className="flex-1 min-w-0 overflow-hidden">
                 <div className="text-xs font-medium truncate leading-tight">{user.email?.split("@")[0]}</div>
-                <div className="text-[10px] text-mute truncate leading-tight">{user.email}</div>
               </div>
             )}
             {sidebarOpen && (
@@ -292,7 +291,7 @@ export default function StudioLayout({
         className={`
           transition-all duration-300 min-h-screen
           lg:pt-0 pt-16
-          ${sidebarOpen ? "lg:ml-[160px]" : "lg:ml-[56px]"}
+          ${sidebarOpen ? "lg:ml-[120px]" : "lg:ml-[56px]"}
         `}
       >
         {/* Top bar (desktop) */}
