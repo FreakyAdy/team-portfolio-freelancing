@@ -193,15 +193,16 @@ export default function HomePage() {
             <a href="#pricing" className="ulink text-ink/90 hover:text-ink">Pricing</a>
             <div className="relative" data-dash-dropdown>
               <button
-                className="ulink text-ink/90 hover:text-ink flex items-center gap-1.5"
+                className="relative text-ink/90 hover:text-ink flex items-center gap-1.5"
                 onClick={() => setDashDropdownOpen(!dashDropdownOpen)}
                 aria-expanded={dashDropdownOpen}
                 aria-haspopup="true"
               >
                 Dashboards
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.25" className={`transition-transform duration-200 ${dashDropdownOpen ? "rotate-180" : ""}`}>
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.25" className={`flex-shrink-0 transition-transform duration-200 ${dashDropdownOpen ? "rotate-180" : ""}`}>
                   <path d="M2 3.5L5 6.5L8 3.5" />
                 </svg>
+                <span className="absolute left-0 bottom-[-3px] w-full h-px bg-current transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-right hover:origin-left" />
               </button>
               {dashDropdownOpen && (
                 <div className="absolute top-full right-0 mt-3 w-52 bg-paper border border-hairline shadow-[0_8px_32px_-8px_rgba(10,10,10,0.12)] py-2 z-50">

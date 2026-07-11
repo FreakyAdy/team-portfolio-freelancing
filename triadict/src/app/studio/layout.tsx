@@ -186,10 +186,10 @@ export default function StudioLayout({
 
       {/* Sidebar */}
       <aside className={`
-        fixed top-0 left-0 h-full bg-paper border-r border-hairline z-40
+        fixed top-0 left-0 h-full bg-paper border-r border-hairline z-40 flex flex-col
         transition-all duration-300
         ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-        ${sidebarOpen ? "w-[260px]" : "w-[72px]"}
+        ${sidebarOpen ? "w-[260px]" : "w-[72px]"}>
       `}>
         {/* Logo */}
         <div className="h-16 flex items-center px-5 border-b border-hairline">
@@ -217,7 +217,7 @@ export default function StudioLayout({
         </div>
 
         {/* Navigation */}
-        <nav className="py-6 px-3 flex-1 overflow-y-auto">
+        <nav className="py-6 px-3 flex-1 overflow-y-auto min-h-0">
           {navSections.map((section) => (
             <div key={section.label} className="mb-6">
               {sidebarOpen && (
