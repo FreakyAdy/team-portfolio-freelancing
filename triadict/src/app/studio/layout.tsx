@@ -157,22 +157,11 @@ export default function StudioLayout({
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
           <Link href="/studio/dashboard" className="flex items-center gap-2">
-            <svg 
-              width="18" 
-              height="18" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="1.25"
-              className="text-coral"
-            >
-              <line x1="12" y1="5.5" x2="5.5" y2="17.5"/>
-              <line x1="12" y1="5.5" x2="18.5" y2="17.5"/>
-              <line x1="6" y1="18" x2="18" y2="18"/>
-              <circle cx="12" cy="5.5" r="1.6" fill="currentColor"/>
-              <circle cx="5.5" cy="18" r="1.6" fill="currentColor"/>
-              <circle cx="18.5" cy="18" r="1.6" fill="currentColor"/>
-            </svg>
+            <img 
+              src="/brand/logo.jpeg" 
+              alt="Triadict" 
+              className="w-6 h-6 rounded object-cover"
+            />
             <span className="font-display text-lg tracking-tight">Studio</span>
           </Link>
         </div>
@@ -210,22 +199,11 @@ export default function StudioLayout({
         {/* Logo */}
         <div className="h-16 flex items-center px-5 border-b border-hairline">
           <Link href="/studio/dashboard" className="flex items-center gap-3">
-            <svg 
-              width="22" 
-              height="22" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="1.25"
-              className="text-coral flex-shrink-0"
-            >
-              <line x1="12" y1="5.5" x2="5.5" y2="17.5"/>
-              <line x1="12" y1="5.5" x2="18.5" y2="17.5"/>
-              <line x1="6" y1="18" x2="18" y2="18"/>
-              <circle cx="12" cy="5.5" r="1.6" fill="currentColor"/>
-              <circle cx="5.5" cy="18" r="1.6" fill="currentColor"/>
-              <circle cx="18.5" cy="18" r="1.6" fill="currentColor"/>
-            </svg>
+            <img 
+              src="/brand/logo.jpeg" 
+              alt="Triadict" 
+              className="w-7 h-7 rounded-md object-cover flex-shrink-0"
+            />
             {sidebarOpen && (
               <span className="font-display text-lg tracking-tight">Studio</span>
             )}

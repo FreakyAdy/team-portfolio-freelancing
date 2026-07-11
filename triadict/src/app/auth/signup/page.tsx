@@ -74,22 +74,11 @@ export default function SignupPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-3">
-            <svg 
-              width="24" 
-              height="24" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="1.25"
-              className="text-coral"
-            >
-              <line x1="12" y1="5.5" x2="5.5" y2="17.5"/>
-              <line x1="12" y1="5.5" x2="18.5" y2="17.5"/>
-              <line x1="6" y1="18" x2="18" y2="18"/>
-              <circle cx="12" cy="5.5" r="1.6" fill="currentColor"/>
-              <circle cx="5.5" cy="18" r="1.6" fill="currentColor"/>
-              <circle cx="18.5" cy="18" r="1.6" fill="currentColor"/>
-            </svg>
+            <img 
+              src="/brand/logo.jpeg" 
+              alt="Triadict" 
+              className="w-8 h-8 rounded-lg object-cover"
+            />
             <span className="font-display text-2xl tracking-tight">Triadict</span>
           </Link>
         </div>

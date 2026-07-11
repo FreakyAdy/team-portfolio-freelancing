@@ -167,14 +167,13 @@ export default function HomePage() {
       <header className={`nav-wrap${navScrolled ? " scrolled" : ""}`}>
         <div className="max-w-[1360px] mx-auto px-6 md:px-10 h-16 md:h-[76px] flex items-center justify-between">
           <a href="#top" className="flex items-center gap-3 group" aria-label="Triadict \u2014 home">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" aria-hidden="true" className="text-ink transition-colors duration-300 group-hover:text-coral">
-              <line x1="12" y1="5.5" x2="5.5" y2="17.5" />
-              <line x1="12" y1="5.5" x2="18.5" y2="17.5" />
-              <line x1="6" y1="18" x2="18" y2="18" />
-              <circle cx="12" cy="5.5" r="1.6" fill="currentColor" />
-              <circle cx="5.5" cy="18" r="1.6" fill="currentColor" />
-              <circle cx="18.5" cy="18" r="1.6" fill="currentColor" />
-            </svg>
+            <img 
+              src="/brand/logo.jpeg" 
+              alt="Triadict" 
+              width={28}
+              height={28}
+              className="rounded-md object-cover transition-transform duration-300 group-hover:scale-105"
+            />
             <span className="font-display text-[22px] tracking-tight leading-none">Triadict</span>
             <span className="hidden md:inline font-mono text-[10px] tracking-[0.14em] uppercase text-mute ml-1">Studio</span>
           </a>
