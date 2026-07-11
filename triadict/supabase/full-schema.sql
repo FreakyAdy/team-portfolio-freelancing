@@ -650,9 +650,9 @@ insert into people (id, org_id, email, full_name, role, supabase_user_id) values
 insert into templates (org_id, category, name, content_md, merge_fields, locked_sections) values
   ('00000000-0000-0000-0000-000000000001', 'proposal', 'Standard Website Proposal',
    '# {{project_name}} Proposal\n\n## The Brief\n{{brief}}\n\n## Our Approach\n{{approach}}\n\n## Scope\n{{scope}}\n\n## Timeline\n{{timeline}}\n\n## Investment\n{{pricing}}\n\n## Next Steps\n{{next_steps}}',
-   '["project_name", "brief", "approach", "scope", "timeline", "pricing", "next_steps"]',
-   '["pricing"]'),
+   '{"project_name", "brief", "approach", "scope", "timeline", "pricing", "next_steps"}',
+   '{"pricing"}'),
   ('00000000-0000-0000-0000-000000000001', 'sow', 'Standard SOW',
    '# Statement of Work\n\n## Project: {{project_name}}\n\n## Deliverables\n{{deliverables}}\n\n## Timeline\n{{timeline}}\n\n## Exclusions\n{{exclusions}}\n\n## Revision Policy\n{{revisions}}\n\n## Acceptance Criteria\n{{acceptance}}',
-   '["project_name", "deliverables", "timeline", "exclusions", "revisions", "acceptance"]',
-   '["revisions"]');
+   '{"project_name", "deliverables", "timeline", "exclusions", "revisions", "acceptance"}',
+   '{"revisions"}');
