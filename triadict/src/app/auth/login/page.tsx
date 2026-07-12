@@ -24,7 +24,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const getDefaultRedirect = () => (tab === "studio" ? "/studio" : "/portal")
+  const getDefaultRedirect = () => (tab === "studio" ? "/studio/dashboard" : "/portal/dashboard")
   const getRedirect = () => redirect || getDefaultRedirect()
 
   const resetForm = () => {
